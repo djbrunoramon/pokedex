@@ -7,5 +7,9 @@
     align-items: center;
 
     padding: rem-calc(40) 0;
+
+    img {
+      cursor: pointer;
+    }
   }
 }

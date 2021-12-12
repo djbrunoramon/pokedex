@@ -1,6 +1,8 @@
-@import "config-scss/variables";
-@import "config-scss/reset";
-@import "config-scss/rem-calc";
+@import "./config-scss/variables";
+@import "./config-scss/reset";
+@import "./config-scss/rem-calc";
+@import "./config-scss/btn";
+@import "./config-scss/animation";
 
 html{
   font-family: 'Roboto', sans-serif;
