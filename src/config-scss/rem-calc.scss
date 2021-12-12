@@ -1,4 +1,6 @@
+@use "sass:math";
+
 @function rem-calc($size){
-  $value: $size / 16;
+  $value: math.div($size,16);
   @return #{$value}rem;
 }
