@@ -1,9 +1,10 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ChangeDetectionStrategy} from '@angular/core';
 
 @Component({
     selector: 'poke-search',
     templateUrl: './poke-search.component.html',
     styleUrls: ['./poke-search.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PokeSearchComponent implements OnInit {
