@@ -4,88 +4,88 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-`pokedex` is an Angular 13.1 single-page app that browses Pokémon from the public
+`pokedex` is an Angular 22 single-page app that browses Pokémon from the public
 [PokéAPI](https://pokeapi.co/api/v2/). UI copy is in Portuguese (pt-BR). There is no
 backend in this repo; the app is deployed as a static build to the committed `docs/`
 folder and served via GitHub Pages (`https://djbrunoramon.github.io/pokedex/`).
+
+It is **standalone + zoneless**: no NgModules, no `zone.js`, signal-driven change
+detection. Build system is `@angular/build:application` (esbuild/Vite); tests run on
+Vitest. Requires Node 20.19+ / 22.12+ / 24+ (the repo was migrated on Node 24 via nvm).
 
 ## Commands
 
 Package manager is npm (`package-lock.json`).
 
-- `npm start` — dev server at `http://localhost:4200/` (`ng serve`, development config).
-- `npm run build` — production build to `dist/pokedex/` (production is the default configuration).
+- `npm start` — dev server at `http://localhost:4200/` (`ng serve`, Vite, development config).
+- `npm run build` — production build (default configuration) to `dist/pokedex/browser/`.
 - `npm run watch` — incremental development build.
-- `npm test` — unit tests via Karma + Jasmine in a real Chrome browser; watches by default.
-- `npm run build-github` — build into `docs/` with the GitHub Pages base href. Note: this
-  script passes `--prod`, a flag removed in Angular 13; if it fails, build with
-  `ng build --output-path=docs --base-href=https://djbrunoramon.github.io/pokedex/` instead.
+- `npm test` — unit tests via Vitest (jsdom). `ng test` **fails if zero spec files match**
+  `**/*.spec.ts`; there must be at least one.
+- `npm run build-github` — **stale**: still passes the long-removed `--prod` flag and
+  writes to `docs/` (not `docs/browser/`). Not fixed during the v22 migration; needs
+  attention before the next GitHub Pages deploy.
 
 ### Running a single test
 
-Karma has no name filter on the CLI. Either mark the spec with `fdescribe` / `fit`, or
-scope the run with `ng test --include='**/some.component.spec.ts'`. `src/test.ts`
-auto-discovers every `*.spec.ts` under `src/`. There are currently **no spec files** in
-the project, so `npm test` compiles and starts a browser but runs zero tests.
+`ng test` accepts Vitest passthrough, e.g.
+`ng test --include='**/poke-list.component.spec.ts'` or `ng test -- -t 'filters the list'`.
+Specs live next to their subject as `*.spec.ts`; the unit-test builder initializes the
+test environment itself (no `src/test.ts`).
 
 ## Architecture
 
-### Module graph and routing
+### Bootstrap and routing
 
-- `AppModule` bootstraps `AppComponent` (just `<router-outlet>`).
-- `AppRoutingModule` (`forRoot`) lazy-loads `PagesModule` at path `''`.
-- `PagesModule` declares the routed pages and wires `RoutingModule` (`forChild`):
-  - `''` → `HomeComponent`
-  - `details/:id` → `DetailsComponent`
-- `SharedModule` declares and exports the presentational components, all with `poke-*`
-  selectors (not the `app` prefix): `PokeHeaderComponent`, `PokeSearchComponent`,
-  `PokeListComponent`.
+- `src/main.ts` → `bootstrapApplication(AppComponent, appConfig)`.
+- `src/app/app.config.ts` — `ApplicationConfig` providers: `provideZonelessChangeDetection()`,
+  `provideRouter(routes)`, `provideHttpClient()`, `provideBrowserGlobalErrorListeners()`.
+- `src/app/app.routes.ts` — flat routes: `''` → `HomeComponent`, `details/:id` →
+  `DetailsComponent`.
+- Every component is standalone with an explicit `imports` array, `ChangeDetectionStrategy.OnPush`,
+  and `inject()` for DI. Presentational components keep `poke-*` selectors (not the `app`
+  prefix): `PokeHeaderComponent`, `PokeSearchComponent`, `PokeListComponent`.
 
 ### Data flow
 
-`PokeApiService` (`providedIn: 'root'`) is the only API layer. All responses are typed `any`.
+`PokeApiService` (`providedIn: 'root'`, `src/app/service/poke-api.service.ts`) is the only
+API layer and is fully typed against `src/app/models/pokeapi.model.ts`.
 
-- `apiListAllPokemons()` — GETs the first 100 Pokémon (list of name + url only), then in a
-  `tap` side effect fires a nested per-Pokémon GET for each entry and **mutates**
-  `result.status` on the list items with the detail response. Subscribers receive the list
-  immediately; each item's `.status` fills in asynchronously afterward. Templates must guard
-  on `*ngIf="pokemon.status"` before reading nested fields (id, types, sprites).
-- `apiGetPokemons(url)` — generic pass-through GET used with an explicit URL.
+- `listWithDetails(): Observable<PokemonWithDetail[]>` — GETs the first 100 Pokémon, then
+  `switchMap`s into a `forkJoin` of one detail GET per entry, emitting once **all** have
+  resolved. A failed detail call yields `detail: null` (the whole list does not reject).
+  This composed stream replaced a pre-migration fire-and-forget nested `subscribe` that
+  mutated list items in place — that pattern cannot work under zoneless, since the
+  mutation would schedule no change detection.
+- `getPokemonWithSpecies(id): Observable<[Pokemon, PokemonSpecies]>` — `forkJoin` of
+  `/pokemon/:id` and `/pokemon-species/:id`.
 
-Component specifics:
+Components consume these streams with `toSignal`:
 
-- `PokeListComponent` keeps two references: `setAllPokemons` (the source list) and
-  `getAllPokemons` (the currently displayed/filtered list). `getSearch(value)` filters
-  `setAllPokemons` by name prefix and reassigns `getAllPokemons`.
-- `PokeSearchComponent` emits `emmitSearch` (spelling intentional — matched in
-  `poke-list.component.html`) on every `keyup`.
-- `DetailsComponent` `forkJoin`s `/pokemon/:id` and `/pokemon-species/:id`; `pokemon` is
-  therefore a 2-element array `[details, species]`. `isLoading` is set to `true` once data
-  has loaded (the name reads inverted), and `apiError` gates an error image.
+- `PokeListComponent` — `allPokemons` is `toSignal(listWithDetails())`; `query` is a
+  `signal<string>` set by the `(term)` output of `PokeSearchComponent`; the rendered list
+  is `pokemons = computed(...)` filtering `allPokemons()` by name prefix. `apiError` is a
+  signal flipped by a `catchError`. Template guards each card on `@if (pokemon.detail)`.
+- `DetailsComponent` — `vm` is `toSignal` of a `{ pokemon, species, error }` view model
+  (`catchError` sets `error: true`). Template: `@if (vm().pokemon; as pokemon)` /
+  `@if (vm().error)`. The species display name is `vm().species?.names?.[0]?.name` (first
+  entry, which PokéAPI returns in Japanese — unchanged from the original).
 - Sprite images come from `sprites.other.dream_world.front_default`.
 
 ### Styling
 
-- Global styles only via `src/styles.scss`, which `@import`s the partials in
-  `src/config-scss/` (`variables`, `reset`, `rem-calc`, `btn`, `animation`).
+- Global styles only via `src/styles.scss`, which `@use`s the partials in
+  `src/config-scss/` (`variables`, `reset`, `rem-calc`, `btn`, `animation`). Component
+  SCSS pulls the `rem-calc()` helper with `@use 'src/config-scss/rem-calc' as *;`,
+  resolved through `stylePreprocessorOptions.includePaths: ["."]` in `angular.json`.
 - Theme colors are CSS custom properties on `:root` in `config-scss/variables.scss`.
-- `rem-calc()` SCSS function converts px to rem; animation classes (e.g. `slideInLeft`,
-  `fadeIn`) come from `animation.scss` and are applied directly in templates.
-- Default component style language is SCSS. Per-component style budget is 2kb (warn) /
-  4kb (error), so keep component styles small.
-
-### PokéAPI types
-
-There are **no interfaces or models for PokéAPI responses** anywhere in the codebase.
-`PokeApiService` methods return `Observable<any>`, components store results in `any`
-fields, and templates reach deep into the raw JSON shape (e.g.
-`pokemon[0].sprites.other.dream_world.front_default`, `value.stat.name`). This means the
-compiler and `strictTemplates` give no protection against a wrong path or an API change.
-When touching data handling, prefer adding proper interfaces (`src/app/model/` or
-similar) over extending the `any` usage.
+- `rem-calc()` converts px to rem; animation classes (`slideInLeft`, `fadeIn`, …) come
+  from `animation.scss` and are applied directly in templates.
+- Per-component style budget is 2kb (warn) / 4kb (error), so keep component styles small.
 
 ### TypeScript
 
-Full strict mode is on, including `strictTemplates`, `noPropertyAccessFromIndexSignature`,
-and `noImplicitOverride` (see `tsconfig.json`) — but see the untyped PokéAPI note above
-for where that strictness currently does not reach.
+Full strict mode, including `strictTemplates`, `noPropertyAccessFromIndexSignature`,
+`noImplicitOverride` (see `tsconfig.json`). TypeScript 6.0. PokéAPI responses are typed
+via `src/app/models/pokeapi.model.ts` — keep new data handling typed rather than
+reintroducing `any`.
