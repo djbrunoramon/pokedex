@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { PokeApiService } from "../../service/poke-api.service";
 
 @Component({
-  selector: 'poke-list',
-  templateUrl: './poke-list.component.html',
-  styleUrls: ['./poke-list.component.scss']
+    selector: 'poke-list',
+    templateUrl: './poke-list.component.html',
+    styleUrls: ['./poke-list.component.scss'],
+    standalone: false
 })
 export class PokeListComponent implements OnInit {
 
