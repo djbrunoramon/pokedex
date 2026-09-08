@@ -1,4 +1,4 @@
-@import '../../../config-scss/rem-calc.scss';
+@use 'src/config-scss/rem-calc' as *;
 
 :host {
   main {

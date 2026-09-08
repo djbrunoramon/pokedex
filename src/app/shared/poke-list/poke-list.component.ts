@@ -1,39 +1,41 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { PokeApiService } from "../../service/poke-api.service";
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
+
+import { PokeApiService } from '../../service/poke-api.service';
+import { PokemonWithDetail } from '../../models/pokeapi.model';
+import { PokeSearchComponent } from '../poke-search/poke-search.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
-    selector: 'poke-list',
-    templateUrl: './poke-list.component.html',
-    styleUrls: ['./poke-list.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'poke-list',
+  imports: [PokeSearchComponent, RouterLink],
+  templateUrl: './poke-list.component.html',
+  styleUrls: ['./poke-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PokeListComponent implements OnInit {
+export class PokeListComponent {
+  private readonly pokeApiService = inject(PokeApiService);
 
-  private setAllPokemons: any;
-  public getAllPokemons: any;
-  public apiError: boolean = false;
+  protected readonly apiError = signal(false);
+  protected readonly query = signal('');
 
-  constructor(
-    private pokeApiService: PokeApiService
-  ) { }
+  private readonly allPokemons = toSignal(
+    this.pokeApiService.listWithDetails().pipe(
+      catchError(() => {
+        this.apiError.set(true);
+        return of<PokemonWithDetail[]>([]);
+      }),
+    ),
+    { initialValue: [] as PokemonWithDetail[] },
+  );
 
-  ngOnInit(): void {
-    this.pokeApiService.apiListAllPokemons().subscribe(
-      res => {
-        this.setAllPokemons = res.results;
-        this.getAllPokemons = this.setAllPokemons;
-      },error => {
-        this.apiError = true;
-      }
-    );
-  }
+  protected readonly pokemons = computed(() => {
+    const q = this.query().toLowerCase();
+    return this.allPokemons().filter((pokemon) => !pokemon.name.indexOf(q));
+  });
 
-  public getSearch(value: string){
-    const filter = this.setAllPokemons.filter( (res: any) => {
-      return !res.name.indexOf(value.toLowerCase());
-    });
-
-    this.getAllPokemons = filter;
+  onSearch(value: string): void {
+    this.query.set(value);
   }
 }

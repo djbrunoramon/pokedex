@@ -1,4 +1,4 @@
-@import "src/config-scss/rem-calc";
+@use "src/config-scss/rem-calc" as *;
 
 :host{
   form{

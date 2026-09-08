@@ -1,4 +1,4 @@
-@import './rem-calc.scss';
+@use './rem-calc' as *;
 
 .btn {
   display: flex;

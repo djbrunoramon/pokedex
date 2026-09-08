@@ -1,22 +1,15 @@
-import {Component, EventEmitter, OnInit, Output, ChangeDetectionStrategy} from '@angular/core';
+import { ChangeDetectionStrategy, Component, output } from '@angular/core';
 
 @Component({
-    selector: 'poke-search',
-    templateUrl: './poke-search.component.html',
-    styleUrls: ['./poke-search.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'poke-search',
+  templateUrl: './poke-search.component.html',
+  styleUrls: ['./poke-search.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PokeSearchComponent implements OnInit {
+export class PokeSearchComponent {
+  readonly term = output<string>();
 
-  @Output() public emmitSearch: EventEmitter<string> = new EventEmitter();
-
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
-  public search(value: string){
-    this.emmitSearch.emit(value);
+  onSearch(value: string): void {
+    this.term.emit(value);
   }
 }

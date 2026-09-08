@@ -2,43 +2,47 @@
 <poke-header></poke-header>
 
 <main>
-  @if (isLoading) {
+  @if (vm().pokemon; as pokemon) {
     <section class="pokemon__names">
-      <h1 class="slideInLeft">{{pokemon[0].name}}</h1>
-      <h2 class="slideInRight">{{pokemon[1].names[0].name}}</h2>
+      <h1 class="slideInLeft">{{ pokemon.name }}</h1>
+      <h2 class="slideInRight">{{ vm().species?.names?.[0]?.name }}</h2>
     </section>
+
     <section class="pokemon__status">
       <img
-        [src]="pokemon[0].sprites.other.dream_world.front_default"
-        [alt]="pokemon[0].name"
+        [src]="pokemon.sprites.other.dream_world.front_default"
+        [alt]="pokemon.name"
         class="slideInDown"
-        >
-        <article class="pokemon__status__statistics fadeIn">
-          <section>
-            <h3>Estatísticas</h3>
-            <ol>
-              @for (value of pokemon[0].stats; track value) {
-                <li>
-                  {{ value.stat.name }}
-                  <strong>
-                    {{ value.base_stat }}
-                  </strong>
-                </li>
-              }
-            </ol>
-          </section>
-          <a [routerLink]="['']" class="btn btn__secondary">
-            Voltar
-          </a>
-        </article>
-      </section>
-    }
+      >
 
-    @if (apiError) {
-      <img
-        src="assets/error.png"
-        alt="Erro ao carregar"
-        width="100%"
-        >
-    }
-  </main>
+      <article class="pokemon__status__statistics fadeIn">
+        <section>
+          <h3>Estatísticas</h3>
+
+          <ol>
+            @for (value of pokemon.stats; track value.stat.name) {
+              <li>
+                {{ value.stat.name }}
+                <strong>
+                  {{ value.base_stat }}
+                </strong>
+              </li>
+            }
+          </ol>
+        </section>
+
+        <a [routerLink]="['']" class="btn btn__secondary">
+          Voltar
+        </a>
+      </article>
+    </section>
+  }
+
+  @if (vm().error) {
+    <img
+      src="assets/error.png"
+      alt="Erro ao carregar"
+      width="100%"
+    >
+  }
+</main>

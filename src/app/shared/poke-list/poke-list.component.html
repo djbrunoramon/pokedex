@@ -1,37 +1,36 @@
 <!--Search-->
-<poke-search (emmitSearch)="getSearch($event)"></poke-search>
+<poke-search (term)="onSearch($event)"></poke-search>
 
 <section class="list-pokemons">
-  @for (pokemon of getAllPokemons; track pokemon) {
-    <ng-template let-pokemon [ngForOf]="getAllPokemons" ]>
-      @if (pokemon.status) {
-        <a [routerLink]="['details', pokemon.status.id]" class="pokemon">
-          <section class="pokemon__status">
-            <h2>
-              {{ pokemon.name }}
-            </h2>
-            <ul>
-              @for (value of pokemon.status.types; track value) {
-                <li>
-                  {{value.type.name}}
-                </li>
-              }
-            </ul>
-          </section>
-          <section class="pokemon__image">
-            <img [src]="pokemon.status.sprites.other.dream_world.front_default"
-              [alt]="pokemon.name">
-            </section>
-          </a>
-        }
-      </ng-template>
-    }
-  </section>
+  @for (pokemon of pokemons(); track pokemon.name) {
+    @if (pokemon.detail; as detail) {
+      <a [routerLink]="['details', detail.id]" class="pokemon">
+        <section class="pokemon__status">
+          <h2>
+            {{ pokemon.name }}
+          </h2>
+          <ul>
+            @for (slot of detail.types; track slot.type.name) {
+              <li>
+                {{ slot.type.name }}
+              </li>
+            }
+          </ul>
+        </section>
 
-  @if (apiError) {
-    <img
-      src="assets/error.png"
-      alt="Erro ao carregar"
-      width="100%"
-      >
+        <section class="pokemon__image">
+          <img [src]="detail.sprites.other.dream_world.front_default"
+               [alt]="pokemon.name">
+        </section>
+      </a>
+    }
   }
+</section>
+
+@if (apiError()) {
+  <img
+    src="assets/error.png"
+    alt="Erro ao carregar"
+    width="100%"
+  >
+}

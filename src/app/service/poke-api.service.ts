@@ -1,40 +1,49 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from "@angular/common/http";
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 
-//Observable
-import {map, Observable} from "rxjs";
-import { tap } from "rxjs/operators";
+import {
+  Pokemon,
+  PokemonListResponse,
+  PokemonSpecies,
+  PokemonWithDetail,
+} from '../models/pokeapi.model';
 
+const API = 'https://pokeapi.co/api/v2';
+const LIST_URL = `${API}/pokemon/?offset=0&limit=100`;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PokeApiService {
+  private readonly http = inject(HttpClient);
 
-  private url: string = 'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=100';
-
-  constructor(
-    private http: HttpClient
-  ) { }
-
-  public apiListAllPokemons():Observable<any>{
-    return this.http.get<any>(this.url).pipe(
-      tap(res => res),
-      tap(res => {
-        res.results.map( (resPokemons: any) => {
-          this.apiGetPokemons(resPokemons.url).subscribe(
-            res => resPokemons.status = res
-          )
-        })
-      })
+  /**
+   * Fetches the first 100 Pokémon and, for each, its detail resource, resolving
+   * once every detail call has completed. A failed detail call yields `detail: null`
+   * rather than rejecting the whole list.
+   */
+  listWithDetails(): Observable<PokemonWithDetail[]> {
+    return this.http.get<PokemonListResponse>(LIST_URL).pipe(
+      switchMap((res) =>
+        res.results.length
+          ? forkJoin(
+              res.results.map((item) =>
+                this.http.get<Pokemon>(item.url).pipe(
+                  map((detail): PokemonWithDetail => ({ ...item, detail })),
+                  catchError(() => of<PokemonWithDetail>({ ...item, detail: null })),
+                ),
+              ),
+            )
+          : of<PokemonWithDetail[]>([]),
+      ),
     );
   }
 
-  public apiGetPokemons( url: string ):Observable<any>{
-    return this.http.get<any>( url ).pipe(
-      map(
-        res => res
-      )
-    )
+  getPokemonWithSpecies(id: string): Observable<[Pokemon, PokemonSpecies]> {
+    return forkJoin([
+      this.http.get<Pokemon>(`${API}/pokemon/${id}`),
+      this.http.get<PokemonSpecies>(`${API}/pokemon-species/${id}`),
+    ]);
   }
 }
