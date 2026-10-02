@@ -1,34 +1,64 @@
 # Pokedex
 
+A single-page app for browsing Pokémon, built with Angular and powered by the public [PokéAPI](https://pokeapi.co/). The UI is in Portuguese (pt-BR).
 
-## Preview the application via the GitHub Page
-[Pokedex Page](https://djbrunoramon.github.io/pokedex/)
+## Live preview
 
+[Pokedex on GitHub Pages](https://djbrunoramon.github.io/pokedex/)
 
-## About the project
+## Features
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.0.
+- List of the first 100 Pokémon with their sprites and types
+- Search by name (prefix match)
+- Details page per Pokémon, with data from `/pokemon/:id` and `/pokemon-species/:id`
 
-## Development server
+## Tech stack
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+- [Angular](https://angular.dev/) 22: standalone components, signals, zoneless change detection
+- TypeScript 6 (strict mode)
+- SCSS
+- [Vitest](https://vitest.dev/) for unit tests
 
-## Code scaffolding
+## Requirements
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Node.js 20.19+, 22.12+ or 24+
+- npm
 
-## Build
+## Getting started
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```bash
+npm install
+npm start
+```
 
-## Running unit tests
+Then open `http://localhost:4200/`. The app reloads automatically when you change a source file.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Scripts
 
-## Running end-to-end tests
+| Command         | Description                                                   |
+| --------------- | ------------------------------------------------------------- |
+| `npm start`     | Start the dev server at `http://localhost:4200/`              |
+| `npm run build` | Production build to `dist/pokedex/browser/`                   |
+| `npm run watch` | Incremental development build                                 |
+| `npm test`      | Run the unit tests with Vitest                                |
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Project structure
 
-## Further help
+```
+src/
+├── app/
+│   ├── models/      # PokéAPI response types
+│   ├── service/     # PokeApiService (the only API layer)
+│   ├── pages/       # Home and Details pages
+│   ├── shared/      # Header, search and list components
+│   ├── app.config.ts
+│   └── app.routes.ts
+├── config-scss/     # Global SCSS partials (variables, reset, animations…)
+└── styles.scss
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Deployment
+
+The app is published to GitHub Pages from the `docs/` folder on `main`.
+
+> **Note:** the `build-github` script is out of date (it still uses the removed `--prod` flag) and needs to be fixed before the next deploy.
