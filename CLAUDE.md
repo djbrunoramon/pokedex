@@ -30,7 +30,8 @@ Package manager is npm (`package-lock.json`).
 ### Running a single test
 
 `ng test` accepts Vitest passthrough, e.g.
-`ng test --include='**/poke-list.component.spec.ts'` or `ng test -- -t 'filters the list'`.
+`ng test --include='**/poke-list.component.spec.ts'` or `ng test --filter='searches the whole index'`
+(`--filter` is a regex over suite/test names; Vitest's `-- -t` passthrough is not supported).
 Specs live next to their subject as `*.spec.ts`; the unit-test builder initializes the
 test environment itself (no `src/test.ts`).
 
