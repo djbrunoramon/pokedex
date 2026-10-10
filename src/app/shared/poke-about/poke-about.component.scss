@@ -1,0 +1,37 @@
+@use 'src/config-scss/rem-calc' as *;
+
+:host {
+  display: block;
+
+  .category {
+    font-weight: 600;
+  }
+
+  .description {
+    margin: rem-calc(8) 0 rem-calc(20);
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  h3 {
+    font-size: rem-calc(16);
+    font-weight: 800;
+  }
+
+  .abilities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: rem-calc(8);
+    margin-top: rem-calc(8);
+
+    li {
+      padding: rem-calc(4) rem-calc(12);
+      border-radius: var(--radius-pill);
+      background: var(--surface-muted);
+    }
+
+    small {
+      color: var(--text-muted);
+    }
+  }
+}

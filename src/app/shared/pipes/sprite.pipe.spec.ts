@@ -9,6 +9,7 @@ function withSprites(dream: string | null, artwork: string | null, pixel: string
     weight: 1,
     stats: [],
     types: [],
+    abilities: [],
     sprites: {
       front_default: pixel,
       other: { dream_world: { front_default: dream }, 'official-artwork': { front_default: artwork } },

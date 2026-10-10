@@ -1,0 +1,31 @@
+@if (!chainUrl()) {
+  <p class="note">Sem dados de evolução.</p>
+} @else if (chain.error()) {
+  <p class="note">Não foi possível carregar a linha evolutiva.</p>
+} @else if (chain.hasValue()) {
+  @if (stages().length > 1) {
+    <ol class="chain">
+      @for (stage of stages(); track $index) {
+        <li class="chain__stage">
+          @for (member of stage; track member.id) {
+            <a
+              class="chain__member"
+              [routerLink]="['/details', member.id]"
+              [state]="linkState()"
+              replaceUrl
+              [attr.aria-current]="member.id === currentId() ? 'page' : null"
+            >
+              <img [src]="member.image" alt="" width="72" height="72" loading="lazy" decoding="async">
+              <span class="chain__number">{{ member.id | dexNumber }}</span>
+              <span class="chain__name">{{ member.name }}</span>
+            </a>
+          }
+        </li>
+      }
+    </ol>
+  } @else {
+    <p class="note">Este Pokémon não evolui.</p>
+  }
+} @else {
+  <div class="skeleton chain__placeholder" aria-hidden="true"></div>
+}

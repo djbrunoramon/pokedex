@@ -1,0 +1,13 @@
+@if (category()) {
+  <p class="category" lang="en">{{ category() }}</p>
+}
+@if (description()) {
+  <p class="description" lang="en">{{ description() }}</p>
+}
+
+<h3>Habilidades</h3>
+<ul class="abilities">
+  @for (ability of abilities(); track ability.name) {
+    <li><span lang="en">{{ ability.name }}</span>@if (ability.hidden) {<small> (oculta)</small>}</li>
+  }
+</ul>

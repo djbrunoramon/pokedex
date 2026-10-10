@@ -26,6 +26,10 @@ const RAW_PIKACHU = {
   },
   stats: [{ base_stat: 35, effort: 0, stat: { name: 'hp', url: 'x' } }],
   types: [{ slot: 1, type: { name: 'electric', url: 'y' } }],
+  abilities: [
+    { slot: 1, is_hidden: false, ability: { name: 'static', url: 'z' } },
+    { slot: 3, is_hidden: true, ability: { name: 'lightning-rod', url: 'w' } },
+  ],
 };
 
 describe('PokeApiService', () => {
@@ -87,6 +91,10 @@ describe('PokeApiService', () => {
       },
       stats: [{ base_stat: 35, stat: { name: 'hp' } }],
       types: [{ type: { name: 'electric' } }],
+      abilities: [
+        { is_hidden: false, ability: { name: 'static' } },
+        { is_hidden: true, ability: { name: 'lightning-rod' } },
+      ],
     });
 
     service.getPokemon(25).subscribe();
@@ -135,5 +143,16 @@ describe('PokeApiService', () => {
 
     service.typeMembers('ice').subscribe();
     http.expectOne(`${API}/type/ice`).flush({ pokemon: [] });
+  });
+
+  it('fetches an evolution chain once and shares it', () => {
+    const url = `${API}/evolution-chain/10/`;
+    const chain = { chain: { species: { name: 'pichu', url: `${API}/pokemon-species/172/` }, evolves_to: [] } };
+    let first: unknown;
+    service.getEvolutionChain(url).subscribe((value) => (first = value));
+    service.getEvolutionChain(url).subscribe();
+
+    http.expectOne(url).flush(chain);
+    expect(first).toEqual(chain);
   });
 });

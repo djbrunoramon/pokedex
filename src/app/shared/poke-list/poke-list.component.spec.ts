@@ -40,6 +40,7 @@ class FakePokeApiService {
       weight: 1,
       stats: [],
       types: [{ type: { name: 'normal' } }],
+      abilities: [],
       sprites: {
         front_default: null,
         other: { dream_world: { front_default: `${id}.svg` }, 'official-artwork': { front_default: null } },

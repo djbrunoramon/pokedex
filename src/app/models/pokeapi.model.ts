@@ -22,6 +22,13 @@ export interface Pokemon {
   sprites: PokemonSprites;
   stats: PokemonStat[];
   types: PokemonTypeSlot[];
+  abilities: PokemonAbilitySlot[];
+}
+
+export interface PokemonAbilitySlot {
+  ability: { name: string };
+  /** A hidden ability, only found on some individuals. */
+  is_hidden: boolean;
 }
 
 export interface PokemonSprites {
@@ -55,4 +62,25 @@ export interface PokemonSpecies {
     name: string;
     language: { name: string };
   }>;
+  /** Category, e.g. "Mouse Pokémon". */
+  genera: Array<{
+    genus: string;
+    language: { name: string };
+  }>;
+  /** Pokédex descriptions, one per game and language. */
+  flavor_text_entries: Array<{
+    flavor_text: string;
+    language: { name: string };
+  }>;
+  evolution_chain: { url: string } | null;
+}
+
+/** `/evolution-chain/:id` — a tree of species, from the base form. */
+export interface EvolutionChain {
+  chain: EvolutionLink;
+}
+
+export interface EvolutionLink {
+  species: { name: string; url: string };
+  evolves_to: EvolutionLink[];
 }

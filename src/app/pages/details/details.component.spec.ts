@@ -22,10 +22,14 @@ const CHARIZARD: Pokemon = {
     { base_stat: 109, stat: { name: 'special-attack' } },
   ],
   types: [{ type: { name: 'fire' } }, { type: { name: 'flying' } }],
+  abilities: [],
 };
 
 const SPECIES: PokemonSpecies = {
   names: [{ name: 'リザードン', language: { name: 'ja-Hrkt' } }],
+  genera: [{ genus: 'Flame Pokémon', language: { name: 'en' } }],
+  flavor_text_entries: [],
+  evolution_chain: null,
 };
 
 class FakePokeApiService {
@@ -97,6 +101,17 @@ describe('DetailsComponent', () => {
     expect(bar?.style.width).toBe(`${(78 / 255) * 100}%`);
 
     expect(TestBed.inject(Title).getTitle()).toBe('Charizard | Pokédex');
+  });
+
+  it('shows the About and Evolution panels', () => {
+    const fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('#about-title')?.textContent).toBe('Sobre');
+    expect(el.querySelector('poke-about')?.textContent).toContain('Flame Pokémon');
+    expect(el.querySelector('#evolution-title')?.textContent).toBe('Evolução');
+    expect(el.querySelector('poke-evolution')?.textContent).toContain('Sem dados de evolução');
   });
 
   it('shows an error state with a way back to the list', () => {

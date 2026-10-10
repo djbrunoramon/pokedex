@@ -37,6 +37,10 @@
     background: var(--secondary-color-strong);
   }
 
+  &__small {
+    padding: rem-calc(10) rem-calc(18);
+  }
+
   &__ghost {
     color: var(--text-on-dark);
     background: var(--surface-glass);

@@ -10,6 +10,8 @@ import { Pokemon, PokemonSpecies } from '../../models/pokeapi.model';
 import { DexNumberPipe } from '../../shared/pipes/dex-number.pipe';
 import { SpritePipe } from '../../shared/pipes/sprite.pipe';
 import { TypeNamePipe } from '../../shared/pipes/type-name.pipe';
+import { PokeAboutComponent } from '../../shared/poke-about/poke-about.component';
+import { PokeEvolutionComponent } from '../../shared/poke-evolution/poke-evolution.component';
 
 interface DetailsViewModel {
   pokemon: Pokemon | null;
@@ -35,7 +37,7 @@ const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
 
 @Component({
   selector: 'app-details',
-  imports: [RouterLink, DexNumberPipe, SpritePipe, TypeNamePipe],
+  imports: [RouterLink, DexNumberPipe, SpritePipe, TypeNamePipe, PokeAboutComponent, PokeEvolutionComponent],
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

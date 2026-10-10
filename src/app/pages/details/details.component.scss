@@ -4,17 +4,12 @@
   .toolbar {
     display: flex;
     justify-content: space-between;
-    gap: rem-calc(12);
     margin-bottom: rem-calc(20);
 
-    .btn {
-      padding: rem-calc(10) rem-calc(18);
+    nav {
+      display: flex;
+      gap: rem-calc(8);
     }
-  }
-
-  .pager {
-    display: flex;
-    gap: rem-calc(8);
   }
 
   .details {
@@ -97,6 +92,11 @@
   .panel {
     color: var(--text);
     background: var(--surface);
+
+    &--wide {
+      grid-column: 1 / -1;
+      min-height: 0;
+    }
 
     h2 {
       margin-bottom: rem-calc(24);

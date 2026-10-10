@@ -14,6 +14,7 @@ const PIKACHU: Pokemon = {
   weight: 60,
   stats: [],
   types: [{ type: { name: 'electric' } }],
+  abilities: [],
   sprites: {
     front_default: 'pixel.png',
     other: { dream_world: { front_default: null }, 'official-artwork': { front_default: 'art.png' } },

@@ -1,19 +1,19 @@
 <main>
   @if (!vm().error) {
     <div class="toolbar">
-      <button type="button" class="btn btn__ghost back" (click)="back()">
+      <button type="button" class="btn btn__ghost btn__small back" (click)="back()">
         <span aria-hidden="true">←</span> Voltar
       </button>
 
       <nav class="pager" aria-label="Pokémon vizinhos (setas ← e →)">
         @if (previousId(); as id) {
-          <a class="btn btn__ghost" [routerLink]="['/details', id]" [state]="neighbourState" replaceUrl
+          <a class="btn btn__ghost btn__small" [routerLink]="['/details', id]" [state]="neighbourState" replaceUrl
              rel="prev" aria-keyshortcuts="ArrowLeft">
             <span aria-hidden="true">←</span> <span class="visually-hidden">Anterior:</span> {{ id | dexNumber }}
           </a>
         }
         @if (nextId(); as id) {
-          <a class="btn btn__ghost" [routerLink]="['/details', id]" [state]="neighbourState" replaceUrl
+          <a class="btn btn__ghost btn__small" [routerLink]="['/details', id]" [state]="neighbourState" replaceUrl
              rel="next" aria-keyshortcuts="ArrowRight">
             <span class="visually-hidden">Próximo:</span> {{ id | dexNumber }} <span aria-hidden="true">→</span>
           </a>
@@ -73,6 +73,22 @@
             <strong class="stats__value">{{ total() }}</strong>
           </li>
         </ul>
+      </section>
+
+      @if (vm().species; as species) {
+        <section class="panel fadeInUp" aria-labelledby="about-title">
+          <h2 id="about-title">Sobre</h2>
+          <poke-about [pokemon]="pokemon" [species]="species"></poke-about>
+        </section>
+      }
+
+      <section class="panel panel--wide fadeInUp" aria-labelledby="evolution-title">
+        <h2 id="evolution-title">Evolução</h2>
+        <poke-evolution
+          [chainUrl]="vm().species?.evolution_chain?.url ?? null"
+          [currentId]="pokemon.id"
+          [linkState]="neighbourState"
+        ></poke-evolution>
       </section>
     </article>
   } @else if (vm().error) {

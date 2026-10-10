@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { forkJoin, map, Observable, shareReplay, tap } from 'rxjs';
 
 import {
+  EvolutionChain,
   Pokemon,
   PokemonListItem,
   PokemonListResponse,
@@ -19,8 +20,13 @@ export function idFromUrl(url: string): number {
   return Number(url.split('/').filter(Boolean).pop());
 }
 
+/** Official artwork of a species by Pokédex number (every species has one). */
+export function artworkUrl(id: number): string {
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+}
+
 /** Keeps only the fields of a `/pokemon/:id` response that the app reads. */
-function slim({ id, name, height, weight, sprites, stats, types }: Pokemon): Pokemon {
+function slim({ id, name, height, weight, sprites, stats, types, abilities }: Pokemon): Pokemon {
   return {
     id,
     name,
@@ -35,6 +41,7 @@ function slim({ id, name, height, weight, sprites, stats, types }: Pokemon): Pok
     },
     stats: stats.map(({ base_stat, stat }) => ({ base_stat, stat: { name: stat.name } })),
     types: types.map(({ type }) => ({ type: { name: type.name } })),
+    abilities: abilities.map(({ ability, is_hidden }) => ({ ability: { name: ability.name }, is_hidden })),
   };
 }
 
@@ -45,6 +52,7 @@ export class PokeApiService {
   private readonly http = inject(HttpClient);
   private readonly pokemonCache = new Map<string, Observable<Pokemon>>();
   private readonly typeCache = new Map<string, Observable<number[]>>();
+  private readonly evolutionCache = new Map<string, Observable<EvolutionChain>>();
   private index$?: Observable<PokemonListItem[]>;
 
   /**
@@ -94,6 +102,19 @@ export class PokeApiService {
       this.typeCache.set(type, ids$);
     }
     return ids$;
+  }
+
+  /** An evolution chain (by the url a species points to), fetched once and shared. */
+  getEvolutionChain(url: string): Observable<EvolutionChain> {
+    let chain$ = this.evolutionCache.get(url);
+    if (!chain$) {
+      chain$ = this.http.get<EvolutionChain>(url).pipe(
+        tap({ error: () => this.evolutionCache.delete(url) }),
+        shareReplay({ bufferSize: 1, refCount: false }),
+      );
+      this.evolutionCache.set(url, chain$);
+    }
+    return chain$;
   }
 
   getPokemonWithSpecies(id: string): Observable<[Pokemon, PokemonSpecies]> {
