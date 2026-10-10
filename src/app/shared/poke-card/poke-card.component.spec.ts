@@ -70,6 +70,17 @@ describe('PokeCardComponent', () => {
     expect(card.getAttribute('data-type')).toBe('electric');
     expect(card.getAttribute('href')).toBe('/details/25');
     expect(card.querySelector('img')?.getAttribute('src')).toBe('art.png');
+    expect(card.querySelector('img')?.getAttribute('loading')).toBe('lazy');
+  });
+
+  it('loads the image eagerly for priority (above-the-fold) cards', async () => {
+    const fixture = render();
+    fixture.componentRef.setInput('priority', true);
+    await fixture.whenStable();
+
+    const img: HTMLImageElement = fixture.nativeElement.querySelector('img');
+    expect(img.getAttribute('loading')).toBe('eager');
+    expect(img.getAttribute('fetchpriority')).toBe('high');
   });
 
   it('falls back to the index name when the detail fails', async () => {

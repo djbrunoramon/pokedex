@@ -12,6 +12,9 @@ import { InViewportDirective } from '../directives/in-viewport.directive';
 /** Cards added per page while scrolling. */
 const PAGE_SIZE = 24;
 
+/** Cards in the first rows, whose images are loaded eagerly. */
+const PRIORITY_CARDS = 6;
+
 /** Number of placeholder cards shown while the index is loading. */
 const SKELETON_CARDS = 12;
 
@@ -42,6 +45,7 @@ export class PokeListComponent {
   /** The search lives in `?q=`, so it survives going to a detail page and back. */
   protected readonly query = signal(this.route.snapshot.queryParamMap.get('q') ?? '');
   protected readonly pageSize = PAGE_SIZE;
+  protected readonly priorityCards = PRIORITY_CARDS;
   protected readonly limit = signal(PAGE_SIZE);
   protected readonly skeletons = Array.from({ length: SKELETON_CARDS }, (_, i) => i);
 

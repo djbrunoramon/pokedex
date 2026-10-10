@@ -19,6 +19,8 @@ export class PokeCardComponent {
 
   /** Index entry; the card loads its own detail so off-screen Pokémon cost nothing. */
   readonly entry = input.required<PokemonListItem>();
+  /** Above-the-fold cards load their image eagerly (it is the page's LCP element). */
+  readonly priority = input(false);
 
   protected readonly id = computed(() => idFromUrl(this.entry().url));
 

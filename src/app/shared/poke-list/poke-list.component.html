@@ -19,7 +19,7 @@
     <ul class="grid">
       @for (entry of visible(); track entry.name) {
         <li class="fadeIn">
-          <poke-card [entry]="entry"></poke-card>
+          <poke-card [entry]="entry" [priority]="$index < priorityCards"></poke-card>
         </li>
       }
     </ul>

@@ -25,7 +25,8 @@
       alt=""
       width="96"
       height="96"
-      loading="lazy"
+      [attr.loading]="priority() ? 'eager' : 'lazy'"
+      [attr.fetchpriority]="priority() ? 'high' : null"
       decoding="async"
     >
   </a>
