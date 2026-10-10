@@ -37,6 +37,7 @@ export class PokeListComponent {
 
   protected readonly apiError = signal(false);
   protected readonly query = signal('');
+  protected readonly pageSize = PAGE_SIZE;
   protected readonly limit = signal(PAGE_SIZE);
   protected readonly skeletons = Array.from({ length: SKELETON_CARDS }, (_, i) => i);
 

@@ -1,5 +1,5 @@
 <form class="search" role="search" (submit)="$event.preventDefault()">
-  <label for="poke-search" class="visually-hidden">Buscar Pokémon pelo nome</label>
+  <label for="poke-search" class="visually-hidden">Buscar Pokémon por nome ou número</label>
   <img src="assets/icons/search.svg" alt="" width="18" height="18" class="search__icon">
   <input
     id="poke-search"
@@ -7,7 +7,7 @@
     type="search"
     class="search__input"
     (input)="onSearch(input.value)"
-    placeholder="Buscar Pokémon pelo nome…"
+    placeholder="Buscar por nome ou número (ex.: pikachu, 25)…"
     autocomplete="off"
     spellcheck="false"
   >

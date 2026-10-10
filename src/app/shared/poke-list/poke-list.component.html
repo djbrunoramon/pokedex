@@ -10,6 +10,9 @@
 } @else if (results(); as list) {
   <p class="count" aria-live="polite">
     {{ list.length }} {{ list.length === 1 ? 'Pokémon encontrado' : 'Pokémon encontrados' }}
+    @if (list.length > visible().length) {
+      · exibindo {{ visible().length }}
+    }
   </p>
 
   @if (list.length) {
@@ -21,15 +24,17 @@
       }
     </ul>
 
-    @if (hasMore()) {
+    @if (list.length > pageSize) {
+      <!-- Stays in the DOM when everything is loaded so keyboard focus is never lost -->
       <button
         type="button"
         class="btn btn__ghost more"
         pokeInViewport
         (inViewport)="loadMore()"
         (click)="loadMore()"
+        [attr.aria-disabled]="!hasMore()"
       >
-        Carregar mais
+        {{ hasMore() ? 'Carregar mais' : 'Todos os Pokémon foram carregados' }}
       </button>
     }
   } @else {

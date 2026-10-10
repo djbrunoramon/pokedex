@@ -99,7 +99,26 @@ describe('PokeListComponent', () => {
     more()!.click();
     await fixture.whenStable();
     expect(cards(fixture).length).toBe(60);
-    expect(more()).toBeNull();
+
+    // the button stays (keeps keyboard focus) but is marked done
+    expect(more()!.getAttribute('aria-disabled')).toBe('true');
+    expect(more()!.textContent).toContain('Todos os Pokémon foram carregados');
+    more()!.click();
+    await fixture.whenStable();
+    expect(cards(fixture).length).toBe(60);
+  });
+
+  it('tells how many of the results are on screen', async () => {
+    const fixture = await render();
+    expect(fixture.nativeElement.querySelector('.count').textContent).toContain('exibindo 24');
+  });
+
+  it('loads the next page when the button scrolls into view', async () => {
+    const fixture = await render();
+    const button = fixture.debugElement.query((el) => el.nativeElement.matches?.('button.more'));
+    button.triggerEventHandler('inViewport');
+    await fixture.whenStable();
+    expect(cards(fixture).length).toBe(48);
   });
 
   it('searches the whole index, including pokemon not rendered yet', async () => {

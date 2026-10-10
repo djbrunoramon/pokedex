@@ -34,14 +34,19 @@ export class InViewportDirective implements OnInit {
     }
 
     const element = this.host.nativeElement;
+    // At most one emission per render: the content added by a listener must lay out
+    // before we know whether the host is still in view.
+    let pending = false;
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
+        if (!pending && entries.some((entry) => entry.isIntersecting)) {
+          pending = true;
           this.inViewport.emit();
           // Re-observing makes the observer report the current state again once the
           // content added by the listener has rendered.
           afterNextRender(
             () => {
+              pending = false;
               observer.unobserve(element);
               observer.observe(element);
             },
