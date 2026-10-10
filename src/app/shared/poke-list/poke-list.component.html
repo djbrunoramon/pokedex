@@ -53,3 +53,9 @@
     </ul>
   </div>
 }
+
+@if (showBackToTop()) {
+  <button type="button" class="btn btn__secondary to-top fadeIn" aria-label="Voltar ao topo" (click)="backToTop()">
+    <span aria-hidden="true">↑</span>
+  </button>
+}

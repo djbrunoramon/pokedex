@@ -47,6 +47,9 @@ function matcher(query: string): (entry: PokemonListItem) => boolean {
   templateUrl: './poke-list.component.html',
   styleUrls: ['./poke-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(window:scroll)': 'onScroll()',
+  },
 })
 export class PokeListComponent {
   private readonly pokeApiService = inject(PokeApiService);
@@ -56,6 +59,8 @@ export class PokeListComponent {
   private readonly reload$ = new Subject<void>();
 
   protected readonly apiError = signal(false);
+  /** Shown once the user has scrolled about a screen and a half down the list. */
+  protected readonly showBackToTop = signal(false);
   /**
    * The search lives in `?q=` (the single source of truth), so it survives going to a
    * detail page and back, and follows router links and browser back/forward.
@@ -130,6 +135,15 @@ export class PokeListComponent {
   private restoredLimit(): number {
     const limit = (this.location.getState() as ListHistoryState | null)?.listLimit;
     return Number.isInteger(limit) && limit! > PAGE_SIZE ? limit! : PAGE_SIZE;
+  }
+
+  protected onScroll(): void {
+    this.showBackToTop.set(window.scrollY > window.innerHeight * 1.5);
+  }
+
+  protected backToTop(): void {
+    const smooth = !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
   }
 
   retry(): void {

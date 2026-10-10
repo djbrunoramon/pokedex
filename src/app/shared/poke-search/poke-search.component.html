@@ -8,7 +8,13 @@
     class="search__input"
     (input)="onSearch(input.value)"
     placeholder="Buscar por nome ou número (ex.: pikachu, 25)…"
+    aria-keyshortcuts="/"
     autocomplete="off"
     spellcheck="false"
   >
+  @if (hasText()) {
+    <button type="button" class="search__clear" aria-label="Limpar busca" (click)="clear()">×</button>
+  } @else {
+    <kbd class="search__hint" aria-hidden="true">/</kbd>
+  }
 </form>

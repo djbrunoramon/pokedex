@@ -38,4 +38,16 @@
       pointer-events: none;
     }
   }
+
+  .to-top {
+    position: fixed;
+    right: var(--gutter);
+    bottom: rem-calc(24);
+    z-index: 10;
+    width: rem-calc(52);
+    height: rem-calc(52);
+    padding: 0;
+    font-size: rem-calc(22);
+    box-shadow: var(--shadow-lg);
+  }
 }

@@ -1,6 +1,12 @@
 @use "src/config-scss/rem-calc" as *;
 
 :host{
+  // Stays reachable while scrolling the list
+  position: sticky;
+  top: rem-calc(12);
+  z-index: 10;
+  display: block;
+
   .search{
     display: flex;
     align-items: center;
@@ -9,7 +15,8 @@
     padding: rem-calc(4) rem-calc(20);
     border: 1px solid var(--border-glass);
     border-radius: var(--radius-pill);
-    background: var(--surface-glass);
+    // Opaque enough to read over the cards scrolling underneath
+    background: rgba(38, 40, 53, 0.88);
     backdrop-filter: blur(8px);
 
     transition:
@@ -38,6 +45,42 @@
 
       &::placeholder{
         color: var(--text-on-dark-muted);
+      }
+    }
+
+    &__input::-webkit-search-cancel-button{
+      appearance: none;
+    }
+
+    &__clear,
+    &__hint{
+      display: grid;
+      place-items: center;
+      width: rem-calc(28);
+      height: rem-calc(28);
+      border-radius: 50%;
+      color: var(--text-on-dark-muted);
+    }
+
+    &__clear{
+      font-size: rem-calc(22);
+      line-height: 1;
+
+      &:hover{
+        color: var(--text-on-dark);
+        background: var(--surface-glass);
+      }
+    }
+
+    &__hint{
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      font: inherit;
+      font-size: rem-calc(13);
+    
+      // Touch devices have no keyboard shortcut to hint at
+      @media (hover: none){
+        display: none;
       }
     }
   }

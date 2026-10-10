@@ -69,4 +69,41 @@ describe('PokeSearchComponent', () => {
 
     expect(input.value).toBe('pika');
   });
+
+  it('clears the field with the clear button, keeping the focus there', () => {
+    const { fixture, input, terms, type } = render();
+    const clearButton = () => fixture.nativeElement.querySelector('button.search__clear') as HTMLButtonElement | null;
+    expect(clearButton()).toBeNull();
+
+    type('pika');
+    vi.advanceTimersByTime(150);
+    fixture.detectChanges();
+    clearButton()!.click();
+    vi.advanceTimersByTime(150);
+    fixture.detectChanges();
+
+    expect(input.value).toBe('');
+    expect(document.activeElement).toBe(input);
+    expect(terms).toEqual(['pika', '']);
+    expect(clearButton()).toBeNull();
+  });
+
+  it('focuses the field when "/" is pressed outside of a text field', () => {
+    const { fixture, input } = render();
+    document.body.appendChild(fixture.nativeElement);
+    const slash = () => new KeyboardEvent('keydown', { key: '/', bubbles: true, cancelable: true });
+
+    const event = slash();
+    document.body.dispatchEvent(event);
+    expect(document.activeElement).toBe(input);
+    expect(event.defaultPrevented).toBe(true); // the "/" is not typed into the field
+
+    const other = document.createElement('textarea');
+    document.body.appendChild(other);
+    other.focus();
+    other.dispatchEvent(slash());
+    expect(document.activeElement).toBe(other); // typing "/" elsewhere is left alone
+    other.remove();
+    fixture.nativeElement.remove();
+  });
 });

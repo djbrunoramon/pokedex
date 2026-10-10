@@ -4,6 +4,7 @@ import {
   effect,
   ElementRef,
   input,
+  signal,
   viewChild,
 } from '@angular/core';
 import { outputFromObservable } from '@angular/core/rxjs-interop';
@@ -17,6 +18,9 @@ const DEBOUNCE_MS = 150;
   templateUrl: './poke-search.component.html',
   styleUrls: ['./poke-search.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:keydown)': 'onShortcut($event)',
+  },
 })
 export class PokeSearchComponent {
   private readonly input$ = new Subject<string>();
@@ -27,6 +31,9 @@ export class PokeSearchComponent {
 
   readonly term = outputFromObservable(this.input$.pipe(debounceTime(DEBOUNCE_MS)));
 
+  /** Whether the field has text (shows the clear button instead of the `/` hint). */
+  protected readonly hasText = signal(false);
+
   constructor() {
     effect(() => {
       const value = this.value();
@@ -35,10 +42,29 @@ export class PokeSearchComponent {
       if (document.activeElement !== field && field.value.trim() !== value) {
         field.value = value;
       }
+      this.hasText.set(field.value !== '');
     });
   }
 
   onSearch(value: string): void {
+    this.hasText.set(value !== '');
     this.input$.next(value);
+  }
+
+  protected clear(): void {
+    const field = this.field().nativeElement;
+    field.value = '';
+    field.focus();
+    this.onSearch('');
+  }
+
+  /** `/` focuses the search from anywhere on the page, unless the user is typing somewhere. */
+  protected onShortcut(event: KeyboardEvent): void {
+    const target = event.target as HTMLElement | null;
+    const typing = target?.closest('input, textarea, select, [contenteditable="true"]');
+    if (event.key === '/' && !typing && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      event.preventDefault();
+      this.field().nativeElement.focus();
+    }
   }
 }
