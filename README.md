@@ -59,6 +59,11 @@ src/
 
 ## Deployment
 
-The app is published to GitHub Pages from the `docs/` folder on `main`.
+The app is published to GitHub Pages from the `docs/` folder on `main`. To deploy:
 
-> **Note:** the `build-github` script is out of date (it still uses the removed `--prod` flag) and needs to be fixed before the next deploy.
+```bash
+npm run build-github   # production build into docs/ with base href /pokedex/
+git add docs && git commit -m "chore: deploy to GitHub Pages" && git push
+```
+
+The script also copies `index.html` to `404.html`, so deep links such as `/pokedex/details/25` (which GitHub Pages answers with `404.html`) still boot the app, and adds `.nojekyll`.

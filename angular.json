@@ -29,8 +29,7 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets",
-              "src/404.html"
+              "src/assets"
             ],
             "styles": [
               "src/styles.scss"
@@ -58,6 +57,13 @@
                 }
               ],
               "outputHashing": "all"
+            },
+            "github-pages": {
+              "outputPath": {
+                "base": "docs",
+                "browser": ""
+              },
+              "baseHref": "/pokedex/"
             },
             "development": {
               "optimization": false,

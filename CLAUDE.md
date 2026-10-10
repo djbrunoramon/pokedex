@@ -22,9 +22,10 @@ Package manager is npm (`package-lock.json`).
 - `npm run watch` — incremental development build.
 - `npm test` — unit tests via Vitest (jsdom). `ng test` **fails if zero spec files match**
   `**/*.spec.ts`; there must be at least one.
-- `npm run build-github` — **stale**: still passes the long-removed `--prod` flag and
-  writes to `docs/` (not `docs/browser/`). Not fixed during the v22 migration; needs
-  attention before the next GitHub Pages deploy.
+- `npm run build-github` — GitHub Pages deploy build: `ng build --configuration
+  production,github-pages` (output straight into `docs/`, base href `/pokedex/`), then
+  `scripts/github-pages.mjs` copies `index.html` → `404.html` (Pages serves it for deep
+  links, so it must boot the app) and writes `.nojekyll`. Commit `docs/` and push `main`.
 
 ### Running a single test
 
