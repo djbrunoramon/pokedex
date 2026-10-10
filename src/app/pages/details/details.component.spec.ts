@@ -55,7 +55,8 @@ describe('DetailsComponent', () => {
     fixture.detectChanges();
 
     const el: HTMLElement = fixture.nativeElement;
-    expect(el.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(el.querySelector('[role="status"]')?.textContent).toContain('Carregando');
+    expect(el.querySelectorAll('.skeleton').length).toBe(2);
     expect(el.querySelector('h1')).toBeNull();
   });
 

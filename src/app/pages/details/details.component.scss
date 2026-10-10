@@ -27,9 +27,11 @@
     align-items: center;
     overflow: hidden;
     text-align: center;
+    background: var(--primary-color);
+    // 40% da cor do tipo mantém texto branco >= 4.5:1 mesmo em tipos claros (electric, ice)
     background:
-      radial-gradient(circle at 50% 60%, rgba(255, 255, 255, 0.22), transparent 60%),
-      color-mix(in srgb, var(--type-color) 50%, var(--primary-color-dark));
+      radial-gradient(circle at 50% 60%, rgba(255, 255, 255, 0.12), transparent 60%),
+      color-mix(in srgb, var(--type-color) 40%, var(--primary-color-dark));
 
     &__watermark {
       position: absolute;
@@ -45,7 +47,6 @@
 
     &__number {
       font-weight: 600;
-      opacity: 0.9;
     }
 
     &__name {
@@ -74,7 +75,6 @@
 
       dt {
         font-size: rem-calc(13);
-        opacity: 0.8;
       }
 
       dd {

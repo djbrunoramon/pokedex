@@ -46,6 +46,7 @@ $types: (
   letter-spacing: 0.02em;
   text-transform: capitalize;
   color: var(--text);
+  background: var(--surface-muted);
   background: color-mix(in srgb, var(--type-color) 22%, var(--surface));
 
   &::before {

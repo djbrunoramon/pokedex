@@ -5,6 +5,7 @@
   --primary-color: #262835;
   --primary-color-dark: #1a1b25;
   --secondary-color: #FF5473;
+  --secondary-color-strong: #d63a5a; // fundo de botão com texto branco (AA)
 
   // Surfaces & text
   --surface: #FFF;
@@ -21,7 +22,6 @@
 
   // Shape & depth
   --radius-sm: 0.5rem;
-  --radius-md: 1rem;
   --radius-lg: 1.5rem;
   --radius-pill: 999px;
   --shadow-sm: 0 1px 2px rgba(15, 16, 30, 0.12);

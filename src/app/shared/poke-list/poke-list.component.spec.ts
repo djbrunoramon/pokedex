@@ -55,6 +55,7 @@ describe('PokeListComponent', () => {
 
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelectorAll('.skeleton').length).toBe(12);
+    expect(el.querySelector('[role="status"]')?.textContent).toContain('Carregando Pokémon');
     expect(el.querySelector('a.card')).toBeNull();
 
     pending.next([detail(1, 'bulbasaur', 'grass')]);

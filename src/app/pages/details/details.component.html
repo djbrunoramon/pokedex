@@ -1,6 +1,6 @@
 <main>
   @if (!vm().error) {
-    <a [routerLink]="['']" class="btn btn__ghost back">
+    <a routerLink="/" class="btn btn__ghost back">
       <span aria-hidden="true">←</span> Voltar
     </a>
   }
@@ -57,14 +57,18 @@
     </article>
   } @else if (vm().error) {
     <section class="state" role="alert">
+      <h1 class="visually-hidden">Pokémon não encontrado</h1>
       <img src="assets/error.png" alt="" width="593" height="247">
       <p>Não foi possível carregar este Pokémon.</p>
-      <a [routerLink]="['']" class="btn btn__secondary">Voltar para a lista</a>
+      <a routerLink="/" class="btn btn__secondary">Voltar para a lista</a>
     </section>
   } @else {
-    <div class="details" aria-busy="true" aria-label="Carregando Pokémon">
-      <div class="details__placeholder skeleton"></div>
-      <div class="details__placeholder skeleton"></div>
+    <div role="status">
+      <span class="visually-hidden">Carregando Pokémon…</span>
+      <div class="details" aria-hidden="true">
+        <div class="details__placeholder skeleton"></div>
+        <div class="details__placeholder skeleton"></div>
+      </div>
     </div>
   }
 </main>

@@ -29,9 +29,12 @@
     </section>
   }
 } @else {
-  <ul class="grid" aria-busy="true" aria-label="Carregando Pokémon">
-    @for (i of skeletons; track i) {
-      <li class="skeleton grid__placeholder"></li>
-    }
-  </ul>
+  <div role="status">
+    <span class="visually-hidden">Carregando Pokémon…</span>
+    <ul class="grid grid--loading" aria-hidden="true">
+      @for (i of skeletons; track i) {
+        <li class="skeleton grid__placeholder"></li>
+      }
+    </ul>
+  </div>
 }

@@ -19,7 +19,7 @@
       min-width: 0;
     }
 
-    &[aria-busy] {
+    &--loading {
       margin-top: rem-calc(60);
     }
 
