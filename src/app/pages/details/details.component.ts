@@ -46,11 +46,6 @@ export class DetailsComponent {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
-  /**
-   * Whether this page was reached from inside the app (vs. a deep link / new tab). Read
-   * while the navigation here is still in flight, so it is the *previous* navigation.
-   */
-  private readonly cameFromApp = this.router.lastSuccessfulNavigation() !== null;
 
   protected readonly vm = toSignal(
     this.pokeApiService
@@ -95,7 +90,10 @@ export class DetailsComponent {
    * position are restored; otherwise (deep link) opens the list.
    */
   back(): void {
-    if (this.cameFromApp) {
+    // Set by the list's cards on this history entry; survives reloads and back/forward,
+    // unlike "the app navigated before", which can't tell what the previous entry is.
+    const state = this.location.getState() as { fromList?: boolean } | null;
+    if (state?.fromList) {
       this.location.back();
     } else {
       this.router.navigateByUrl('/');

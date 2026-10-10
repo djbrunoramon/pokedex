@@ -1,12 +1,11 @@
 @use 'sass:list';
+@use 'sass:math';
 
 // Céu estrelado animado atrás do conteúdo (marcação em AppComponent).
-// Cada camada é um ponto de 1–3px replicado via box-shadow; `::after` repete o
-// campo logo abaixo, então a deriva vertical faz loop sem emenda. Só transform e
-// opacity são animados (compositor). prefers-reduced-motion para tudo (reset.scss).
-
-$field-width: 2560;
-$field-height: 2000;
+// Cada camada é um ponto de 1–3px replicado via box-shadow em vw/vh — cobre qualquer
+// tela e a camada nunca passa de 1×2 viewports; `::after` repete o campo logo abaixo,
+// então a deriva vertical faz loop sem emenda. Só transform e opacity são animados
+// (compositor). prefers-reduced-motion para tudo (reset.scss).
 
 // Gerador Park–Miller com semente fixa: o céu é o mesmo em todo build.
 @function next($seed) {
@@ -18,10 +17,10 @@ $field-height: 2000;
   $s: $seed;
   @for $i from 1 through $count {
     $s: next($s);
-    $x: $s % $field-width;
+    $x: math.div($s % 1000, 10);
     $s: next($s);
-    $y: $s % $field-height;
-    $shadows: list.append($shadows, #{$x}px #{$y}px $color, $separator: comma);
+    $y: math.div($s % 1000, 10);
+    $shadows: list.append($shadows, #{$x}vw #{$y}vh $color, $separator: comma);
   }
   @return $shadows;
 }
@@ -47,7 +46,7 @@ $field-height: 2000;
   &::after {
     content: '';
     position: absolute;
-    top: #{$field-height}px;
+    top: 100vh;
     width: inherit;
     height: inherit;
     border-radius: inherit;
@@ -93,7 +92,7 @@ $field-height: 2000;
 
 @keyframes star-drift {
   to {
-    transform: translateY(-#{$field-height}px);
+    transform: translateY(-100vh);
   }
 }
 

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Location } from '@angular/common';
+import { provideRouter, Router } from '@angular/router';
 import { Observable, of, Subject, throwError } from 'rxjs';
 
 import { PokeCardComponent } from './poke-card.component';
@@ -34,7 +35,7 @@ describe('PokeCardComponent', () => {
     await TestBed.configureTestingModule({
       imports: [PokeCardComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([{ path: '**', children: [] }]),
         { provide: PokeApiService, useClass: FakePokeApiService },
       ],
     }).compileComponents();
@@ -69,6 +70,13 @@ describe('PokeCardComponent', () => {
     expect(card.textContent).toContain('pikachu');
     expect(card.getAttribute('data-type')).toBe('electric');
     expect(card.getAttribute('href')).toBe('/details/25');
+
+    // marks the detail's history entry so its "Voltar" can go back to the list
+    const router = TestBed.inject(Router);
+    card.click();
+    await fixture.whenStable();
+    expect(router.url).toBe('/details/25');
+    expect(TestBed.inject(Location).getState()).toMatchObject({ fromList: true });
     expect(card.querySelector('img')?.getAttribute('src')).toBe('art.png');
     expect(card.querySelector('img')?.getAttribute('loading')).toBe('lazy');
   });

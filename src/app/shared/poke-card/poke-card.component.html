@@ -1,5 +1,5 @@
 @if (detail.error()) {
-  <a [routerLink]="['/details', id()]" class="card card--error">
+  <a [routerLink]="['/details', id()]" [state]="fromList" class="card card--error">
     <div class="card__info">
       <span class="card__number">{{ id() | dexNumber }}</span>
       <h2 class="card__name">{{ entry().name }}</h2>
@@ -8,7 +8,7 @@
   </a>
 } @else if (detail.hasValue()) {
   @let pokemon = detail.value();
-  <a [routerLink]="['/details', id()]" class="card" [attr.data-type]="primaryType()">
+  <a [routerLink]="['/details', id()]" [state]="fromList" class="card" [attr.data-type]="primaryType()">
     <div class="card__info">
       <span class="card__number">{{ id() | dexNumber }}</span>
       <h2 class="card__name">{{ pokemon.name }}</h2>

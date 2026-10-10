@@ -1,7 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, of, startWith, Subject, switchMap } from 'rxjs';
+import { catchError, map, of, startWith, Subject, switchMap } from 'rxjs';
 
 import { idFromUrl, PokeApiService } from '../../service/poke-api.service';
 import { PokemonListItem } from '../../models/pokeapi.model';
@@ -42,11 +49,18 @@ export class PokeListComponent {
   private readonly reload$ = new Subject<void>();
 
   protected readonly apiError = signal(false);
-  /** The search lives in `?q=`, so it survives going to a detail page and back. */
-  protected readonly query = signal(this.route.snapshot.queryParamMap.get('q') ?? '');
+  /**
+   * The search lives in `?q=` (the single source of truth), so it survives going to a
+   * detail page and back, and follows the logo link and browser back/forward.
+   */
+  protected readonly query = toSignal(
+    this.route.queryParamMap.pipe(map((params) => params.get('q') ?? '')),
+    { initialValue: this.route.snapshot.queryParamMap.get('q') ?? '' },
+  );
   protected readonly pageSize = PAGE_SIZE;
   protected readonly priorityCards = PRIORITY_CARDS;
-  protected readonly limit = signal(PAGE_SIZE);
+  /** Rendered cards; back to the first page whenever the search changes. */
+  protected readonly limit = linkedSignal({ source: this.query, computation: () => PAGE_SIZE });
   protected readonly skeletons = Array.from({ length: SKELETON_CARDS }, (_, i) => i);
 
   /** Full species index; `undefined` while loading. */
@@ -78,11 +92,13 @@ export class PokeListComponent {
   protected readonly hasMore = computed(() => (this.results()?.length ?? 0) > this.limit());
 
   onSearch(value: string): void {
-    this.query.set(value);
-    this.limit.set(PAGE_SIZE);
+    const q = value.trim();
+    if (q === this.query()) {
+      return;
+    }
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { q: value.trim() || null },
+      queryParams: { q: q || null },
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });

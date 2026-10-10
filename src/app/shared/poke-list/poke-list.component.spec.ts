@@ -156,7 +156,7 @@ describe('PokeListComponent', () => {
     await fixture.whenStable();
     expect(cards(fixture).length).toBe(48);
 
-    fixture.componentInstance.onSearch('');
+    fixture.componentInstance.onSearch('poke'); // 56 matches
     await fixture.whenStable();
     expect(cards(fixture).length).toBe(24);
   });
@@ -174,6 +174,32 @@ describe('PokeListComponent', () => {
     fixture.componentInstance.onSearch('  ');
     await fixture.whenStable();
     expect(router.url).toBe('/');
+  });
+
+  it('follows the URL when it changes from outside (logo link, browser back/forward)', async () => {
+    const fixture = await render();
+    const router = TestBed.inject(Router);
+    const input = (): HTMLInputElement => fixture.nativeElement.querySelector('input');
+
+    await router.navigateByUrl('/?q=char');
+    await fixture.whenStable();
+    expect(input().value).toBe('char');
+    expect(cards(fixture).length).toBe(1);
+
+    await router.navigateByUrl('/'); // the header logo
+    await fixture.whenStable();
+    expect(input().value).toBe('');
+    expect(cards(fixture).length).toBe(24);
+  });
+
+  it('keeps other query params when searching', async () => {
+    const fixture = await render();
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/?ref=share');
+
+    fixture.componentInstance.onSearch('mew');
+    await fixture.whenStable();
+    expect(router.url).toBe('/?ref=share&q=mew');
   });
 
   it('restores the search from ?q= (e.g. coming back from a detail page)', async () => {

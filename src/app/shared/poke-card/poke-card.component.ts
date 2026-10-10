@@ -24,6 +24,9 @@ export class PokeCardComponent {
 
   protected readonly id = computed(() => idFromUrl(this.entry().url));
 
+  /** History state marking that the detail page was opened from the list (see DetailsComponent.back). */
+  protected readonly fromList = { fromList: true };
+
   protected readonly detail = rxResource({
     params: () => this.id(),
     stream: ({ params: id }) => this.pokeApiService.getPokemon(id),

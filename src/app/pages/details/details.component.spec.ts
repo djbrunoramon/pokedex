@@ -43,7 +43,7 @@ describe('DetailsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DetailsComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([{ path: '**', children: [] }]),
         { provide: PokeApiService, useClass: FakePokeApiService },
         { provide: ActivatedRoute, useValue: { snapshot: { params: { id: '6' } } } },
       ],
@@ -99,8 +99,9 @@ describe('DetailsComponent', () => {
     expect(alert?.querySelector('button')?.textContent).toContain('Voltar para a lista');
   });
 
-  it('goes back through history when it was opened from inside the app', async () => {
-    await TestBed.inject(Router).navigateByUrl('/?q=char');
+  it('goes back through history when it was opened from the list', async () => {
+    // the list's cards navigate with this state; it also survives reloads and back/forward
+    await TestBed.inject(Router).navigateByUrl('/', { state: { fromList: true } });
     const back = vi.spyOn(TestBed.inject(Location), 'back').mockImplementation(() => undefined);
 
     const fixture = TestBed.createComponent(DetailsComponent);
@@ -108,6 +109,23 @@ describe('DetailsComponent', () => {
     fixture.nativeElement.querySelector('button.back').click();
 
     expect(back).toHaveBeenCalled();
+  });
+
+  it('opens the list (never leaves the app) when the entry was not opened from the list', async () => {
+    // e.g. deep link → logo → browser back: the app navigated before, but the previous
+    // history entry is outside the app
+    await TestBed.inject(Router).navigateByUrl('/');
+    await TestBed.inject(Router).navigateByUrl('/details/6');
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    const back = vi.spyOn(TestBed.inject(Location), 'back');
+
+    const fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('button.back').click();
+
+    expect(navigate).toHaveBeenCalledWith('/');
+    expect(back).not.toHaveBeenCalled();
   });
 
   it('opens the list when it was reached by a deep link', () => {

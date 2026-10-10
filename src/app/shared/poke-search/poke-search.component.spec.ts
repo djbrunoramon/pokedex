@@ -47,15 +47,26 @@ describe('PokeSearchComponent', () => {
     expect(terms).toEqual(['pik']);
   });
 
-  it('does not re-emit an unchanged term', () => {
-    const { terms, type } = render();
+  it('follows outside changes to the value when the field is not focused', () => {
+    const { fixture, input } = render();
 
-    type('abra');
-    vi.advanceTimersByTime(200);
-    type('abr');
-    type('abra');
-    vi.advanceTimersByTime(200);
+    fixture.componentRef.setInput('value', 'char');
+    fixture.detectChanges();
+    expect(input.value).toBe('char');
 
-    expect(terms).toEqual(['abra']);
+    fixture.componentRef.setInput('value', '');
+    fixture.detectChanges();
+    expect(input.value).toBe('');
+  });
+
+  it('never overwrites what the user is typing', () => {
+    const { fixture, input } = render();
+    input.focus();
+    input.value = 'pika';
+
+    fixture.componentRef.setInput('value', 'pik'); // a stale debounced term arriving late
+    fixture.detectChanges();
+
+    expect(input.value).toBe('pika');
   });
 });
