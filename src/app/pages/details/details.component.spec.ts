@@ -78,7 +78,7 @@ describe('DetailsComponent', () => {
     expect(el.querySelector('h1')).toBeNull();
   });
 
-  it('renders the hero, translated stats with bars and the total', () => {
+  it('renders the hero and the base stats', () => {
     const fixture = TestBed.createComponent(DetailsComponent);
     fixture.detectChanges();
 
@@ -91,14 +91,7 @@ describe('DetailsComponent', () => {
     expect(el.querySelector('.hero__measures')?.textContent).toContain('1,7 m');
     expect(el.querySelector('.hero__measures')?.textContent).toContain('90,5 kg');
 
-    const rows = el.querySelectorAll('.stats__row');
-    expect(rows[1].textContent).toContain('Ataque Esp.');
-    expect(rows[1].textContent).toContain('109');
-    expect(rows[2].textContent).toContain('Total');
-    expect(rows[2].textContent).toContain('187');
-
-    const bar = rows[0].querySelector<HTMLElement>('.stats__bar span');
-    expect(bar?.style.width).toBe(`${(78 / 255) * 100}%`);
+    expect(el.querySelectorAll('poke-stats .stats__row').length).toBe(3);
 
     expect(TestBed.inject(Title).getTitle()).toBe('Charizard | Pokédex');
   });

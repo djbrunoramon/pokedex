@@ -58,21 +58,7 @@
       <section class="panel fadeInUp" aria-labelledby="stats-title">
         <h2 id="stats-title">Estatísticas base</h2>
 
-        <ul class="stats">
-          @for (stat of stats(); track stat.name) {
-            <li class="stats__row">
-              <span class="stats__label">{{ stat.label }}</span>
-              <strong class="stats__value">{{ stat.value }}</strong>
-              <span class="stats__bar" aria-hidden="true">
-                <span [style.width.%]="stat.percent"></span>
-              </span>
-            </li>
-          }
-          <li class="stats__row stats__row--total">
-            <span class="stats__label">Total</span>
-            <strong class="stats__value">{{ total() }}</strong>
-          </li>
-        </ul>
+        <poke-stats [stats]="pokemon.stats"></poke-stats>
       </section>
 
       @if (vm().species; as species) {

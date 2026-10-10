@@ -1,0 +1,35 @@
+@use 'src/config-scss/rem-calc' as *;
+
+:host {
+  display: block;
+
+  .stats__row {
+    display: grid;
+    grid-template-columns: rem-calc(110) rem-calc(40) 1fr;
+    align-items: center;
+    gap: rem-calc(12);
+    padding: rem-calc(9) 0;
+
+    &--total {
+      margin-top: rem-calc(8);
+      border-top: 1px solid var(--surface-muted);
+    }
+  }
+
+  .stats__label {
+    color: var(--text-muted);
+  }
+
+  .stats__bar {
+    height: rem-calc(8);
+    border-radius: var(--radius-pill);
+    background: var(--surface-muted);
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--type-color);
+    }
+  }
+}

@@ -12,6 +12,7 @@ import { SpritePipe } from '../../shared/pipes/sprite.pipe';
 import { TypeNamePipe } from '../../shared/pipes/type-name.pipe';
 import { PokeAboutComponent } from '../../shared/poke-about/poke-about.component';
 import { PokeEvolutionComponent } from '../../shared/poke-evolution/poke-evolution.component';
+import { PokeStatsComponent } from '../../shared/poke-stats/poke-stats.component';
 
 interface DetailsViewModel {
   pokemon: Pokemon | null;
@@ -21,23 +22,11 @@ interface DetailsViewModel {
 
 const EMPTY_VM: DetailsViewModel = { pokemon: null, species: null, error: false };
 
-/** Highest base stat any Pokémon has (Blissey's HP); scales the stat bars. */
-const MAX_BASE_STAT = 255;
-
-const STAT_LABELS: Record<string, string> = {
-  hp: 'HP',
-  attack: 'Ataque',
-  defense: 'Defesa',
-  'special-attack': 'Ataque Esp.',
-  'special-defense': 'Defesa Esp.',
-  speed: 'Velocidade',
-};
-
 const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
 
 @Component({
   selector: 'app-details',
-  imports: [RouterLink, DexNumberPipe, SpritePipe, TypeNamePipe, PokeAboutComponent, PokeEvolutionComponent],
+  imports: [RouterLink, DexNumberPipe, SpritePipe, TypeNamePipe, PokeAboutComponent, PokeEvolutionComponent, PokeStatsComponent],
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -95,19 +84,6 @@ export class DetailsComponent {
 
   protected readonly primaryType = computed(
     () => this.vm().pokemon?.types[0]?.type.name ?? 'normal',
-  );
-
-  protected readonly stats = computed(() =>
-    (this.vm().pokemon?.stats ?? []).map(({ stat, base_stat }) => ({
-      name: stat.name,
-      label: STAT_LABELS[stat.name] ?? stat.name,
-      value: base_stat,
-      percent: Math.min(100, (base_stat / MAX_BASE_STAT) * 100),
-    })),
-  );
-
-  protected readonly total = computed(() =>
-    this.stats().reduce((sum, stat) => sum + stat.value, 0),
   );
 
   protected readonly measures = computed(() => {
