@@ -12,7 +12,10 @@ const CHARIZARD: Pokemon = {
   name: 'charizard',
   height: 17,
   weight: 905,
-  sprites: { other: { dream_world: { front_default: 'charizard.svg' } } },
+  sprites: {
+    front_default: null,
+    other: { dream_world: { front_default: 'charizard.svg' }, 'official-artwork': { front_default: null } },
+  },
   stats: [
     { base_stat: 78, stat: { name: 'hp' } },
     { base_stat: 109, stat: { name: 'special-attack' } },

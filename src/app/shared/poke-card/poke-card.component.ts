@@ -1,18 +1,33 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 
-import { Pokemon } from '../../models/pokeapi.model';
+import { PokemonListItem } from '../../models/pokeapi.model';
+import { idFromUrl, PokeApiService } from '../../service/poke-api.service';
 import { DexNumberPipe } from '../pipes/dex-number.pipe';
+import { SpritePipe } from '../pipes/sprite.pipe';
 
 @Component({
   selector: 'poke-card',
-  imports: [RouterLink, DexNumberPipe],
+  imports: [RouterLink, DexNumberPipe, SpritePipe],
   templateUrl: './poke-card.component.html',
   styleUrls: ['./poke-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PokeCardComponent {
-  readonly pokemon = input.required<Pokemon>();
+  private readonly pokeApiService = inject(PokeApiService);
 
-  protected readonly primaryType = computed(() => this.pokemon().types[0]?.type.name ?? 'normal');
+  /** Index entry; the card loads its own detail so off-screen Pokémon cost nothing. */
+  readonly entry = input.required<PokemonListItem>();
+
+  protected readonly id = computed(() => idFromUrl(this.entry().url));
+
+  protected readonly detail = rxResource({
+    params: () => this.id(),
+    stream: ({ params: id }) => this.pokeApiService.getPokemon(id),
+  });
+
+  protected readonly primaryType = computed(() =>
+    this.detail.hasValue() ? (this.detail.value().types[0]?.type.name ?? 'normal') : 'normal',
+  );
 }

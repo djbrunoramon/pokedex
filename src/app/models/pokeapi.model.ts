@@ -12,11 +12,6 @@ export interface PokemonListItem {
   url: string;
 }
 
-/** A list entry enriched with its fetched detail (null while/if the detail call fails). */
-export interface PokemonWithDetail extends PokemonListItem {
-  detail: Pokemon | null;
-}
-
 export interface Pokemon {
   id: number;
   name: string;
@@ -30,8 +25,12 @@ export interface Pokemon {
 }
 
 export interface PokemonSprites {
+  front_default: string | null;
   other: {
     dream_world: {
+      front_default: string | null;
+    };
+    'official-artwork': {
       front_default: string | null;
     };
   };

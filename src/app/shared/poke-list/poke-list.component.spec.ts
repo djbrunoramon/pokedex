@@ -4,30 +4,38 @@ import { Observable, of, Subject, throwError } from 'rxjs';
 
 import { PokeListComponent } from './poke-list.component';
 import { PokeApiService } from '../../service/poke-api.service';
-import { PokemonWithDetail } from '../../models/pokeapi.model';
+import { Pokemon, PokemonListItem } from '../../models/pokeapi.model';
 
-function detail(id: number, name: string, type: string): PokemonWithDetail {
-  return {
-    name,
-    url: `https://pokeapi.co/api/v2/pokemon/${id}/`,
-    detail: {
-      id,
-      name,
-      height: 7,
-      weight: 69,
-      sprites: { other: { dream_world: { front_default: `${name}.svg` } } },
-      stats: [],
-      types: [{ type: { name: type } }],
-    },
-  };
+const NAMES = ['bulbasaur', 'ivysaur', 'venusaur', 'charmander'];
+
+/** An index of `count` species; the first ones get real names, the rest `poke-<id>`. */
+function index(count: number): PokemonListItem[] {
+  return Array.from({ length: count }, (_, i) => ({
+    name: NAMES[i] ?? `poke-${i + 1}`,
+    url: `https://pokeapi.co/api/v2/pokemon-species/${i + 1}/`,
+  }));
 }
 
 class FakePokeApiService {
-  response: () => Observable<PokemonWithDetail[]> = () =>
-    of([detail(1, 'bulbasaur', 'grass'), detail(4, 'charmander', 'fire')]);
+  response: () => Observable<PokemonListItem[]> = () => of(index(60));
 
-  listWithDetails(): Observable<PokemonWithDetail[]> {
+  index(): Observable<PokemonListItem[]> {
     return this.response();
+  }
+
+  getPokemon(id: number): Observable<Pokemon> {
+    return of({
+      id,
+      name: NAMES[id - 1] ?? `poke-${id}`,
+      height: 1,
+      weight: 1,
+      stats: [],
+      types: [{ type: { name: 'normal' } }],
+      sprites: {
+        front_default: null,
+        other: { dream_world: { front_default: `${id}.svg` }, 'official-artwork': { front_default: null } },
+      },
+    });
   }
 }
 
@@ -46,78 +54,115 @@ describe('PokeListComponent', () => {
     api = TestBed.inject(PokeApiService) as unknown as FakePokeApiService;
   });
 
-  it('shows skeleton placeholders while loading', () => {
-    const pending = new Subject<PokemonWithDetail[]>();
+  async function render() {
+    const fixture = TestBed.createComponent(PokeListComponent);
+    await fixture.whenStable();
+    return fixture;
+  }
+
+  function cards(fixture: { nativeElement: HTMLElement }): NodeListOf<HTMLElement> {
+    return fixture.nativeElement.querySelectorAll('a.card');
+  }
+
+  it('shows skeleton placeholders while the index loads', async () => {
+    const pending = new Subject<PokemonListItem[]>();
     api.response = () => pending;
 
-    const fixture = TestBed.createComponent(PokeListComponent);
-    fixture.detectChanges();
-
+    const fixture = await render();
     const el: HTMLElement = fixture.nativeElement;
-    expect(el.querySelectorAll('.skeleton').length).toBe(12);
+    expect(el.querySelectorAll('.grid--loading .skeleton').length).toBe(12);
     expect(el.querySelector('[role="status"]')?.textContent).toContain('Carregando Pokémon');
-    expect(el.querySelector('a.card')).toBeNull();
 
-    pending.next([detail(1, 'bulbasaur', 'grass')]);
-    fixture.detectChanges();
+    pending.next(index(3));
+    await fixture.whenStable();
 
-    expect(el.querySelectorAll('.skeleton').length).toBe(0);
-    expect(el.querySelectorAll('a.card').length).toBe(1);
+    expect(el.querySelector('.grid--loading')).toBeNull();
+    expect(cards(fixture).length).toBe(3);
   });
 
-  it('renders a card per resolved pokemon with number and type', () => {
-    const fixture = TestBed.createComponent(PokeListComponent);
-    fixture.detectChanges();
+  it('renders the first page and the total count', async () => {
+    const fixture = await render();
 
-    const cards = fixture.nativeElement.querySelectorAll('a.card');
-    expect(cards.length).toBe(2);
-    expect(cards[0].textContent).toContain('bulbasaur');
-    expect(cards[0].textContent).toContain('#001');
-    expect(cards[0].textContent).toContain('grass');
-    expect(cards[0].getAttribute('data-type')).toBe('grass');
-    expect(cards[0].getAttribute('href')).toBe('/details/1');
+    expect(cards(fixture).length).toBe(24);
+    expect(cards(fixture)[0].textContent).toContain('#001');
+    expect(fixture.nativeElement.querySelector('.count').textContent).toContain('60 Pokémon encontrados');
   });
 
-  it('filters the list by name prefix via the search output', () => {
-    const fixture = TestBed.createComponent(PokeListComponent);
-    fixture.detectChanges();
+  it('loads more pages until the index is exhausted', async () => {
+    const fixture = await render();
+    const more = () => fixture.nativeElement.querySelector('button.more') as HTMLButtonElement | null;
 
-    fixture.componentInstance.onSearch('Char ');
-    fixture.detectChanges();
+    more()!.click();
+    await fixture.whenStable();
+    expect(cards(fixture).length).toBe(48);
 
-    const cards = fixture.nativeElement.querySelectorAll('a.card');
-    expect(cards.length).toBe(1);
-    expect(cards[0].textContent).toContain('charmander');
-    expect(fixture.nativeElement.querySelector('.count').textContent).toContain('1 Pokémon encontrado');
+    more()!.click();
+    await fixture.whenStable();
+    expect(cards(fixture).length).toBe(60);
+    expect(more()).toBeNull();
   });
 
-  it('shows an empty state when the search has no match', () => {
-    const fixture = TestBed.createComponent(PokeListComponent);
-    fixture.detectChanges();
+  it('searches the whole index, including pokemon not rendered yet', async () => {
+    const fixture = await render();
+
+    fixture.componentInstance.onSearch('poke-5');
+    await fixture.whenStable();
+
+    // poke-5 and poke-50..59 — #50+ were never on screen before the search
+    expect(cards(fixture).length).toBe(11);
+    expect(fixture.nativeElement.textContent).toContain('poke-59');
+  });
+
+  it('matches by name substring and by Pokédex number', async () => {
+    const fixture = await render();
+
+    fixture.componentInstance.onSearch('SAUR ');
+    await fixture.whenStable();
+    expect(cards(fixture).length).toBe(3);
+
+    fixture.componentInstance.onSearch('#4');
+    await fixture.whenStable();
+    expect(cards(fixture).length).toBe(1);
+    expect(cards(fixture)[0].textContent).toContain('charmander');
+
+    fixture.componentInstance.onSearch('57');
+    await fixture.whenStable();
+    expect(cards(fixture)[0].textContent).toContain('#057');
+  });
+
+  it('resets paging when the search changes', async () => {
+    const fixture = await render();
+    fixture.nativeElement.querySelector('button.more').click();
+    await fixture.whenStable();
+    expect(cards(fixture).length).toBe(48);
+
+    fixture.componentInstance.onSearch('');
+    await fixture.whenStable();
+    expect(cards(fixture).length).toBe(24);
+  });
+
+  it('shows an empty state when the search has no match', async () => {
+    const fixture = await render();
 
     fixture.componentInstance.onSearch('zzz');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
-    const el: HTMLElement = fixture.nativeElement;
-    expect(el.querySelectorAll('a.card').length).toBe(0);
-    expect(el.querySelector('.state')?.textContent).toContain('Nenhum Pokémon encontrado para “zzz”');
+    expect(cards(fixture).length).toBe(0);
+    expect(fixture.nativeElement.querySelector('.state')?.textContent).toContain('Nenhum Pokémon encontrado para “zzz”');
   });
 
-  it('shows an error state and reloads on retry', () => {
+  it('shows an error state and reloads on retry', async () => {
     api.response = () => throwError(() => new Error('offline'));
 
-    const fixture = TestBed.createComponent(PokeListComponent);
-    fixture.detectChanges();
-
+    const fixture = await render();
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelector('[role="alert"]')?.textContent).toContain('Não foi possível carregar');
 
-    api.response = () => of([detail(25, 'pikachu', 'electric')]);
+    api.response = () => of(index(2));
     el.querySelector<HTMLButtonElement>('[role="alert"] button')!.click();
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(el.querySelector('[role="alert"]')).toBeNull();
-    expect(el.querySelectorAll('a.card').length).toBe(1);
-    expect(el.textContent).toContain('#025');
+    expect(cards(fixture).length).toBe(2);
   });
 });

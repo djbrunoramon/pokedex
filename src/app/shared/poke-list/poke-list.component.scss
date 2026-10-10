@@ -28,4 +28,9 @@
       border-radius: var(--radius-lg);
     }
   }
+
+  .more {
+    display: flex;
+    margin: rem-calc(32) auto 0;
+  }
 }

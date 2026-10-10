@@ -7,21 +7,31 @@
     <p>Não foi possível carregar os Pokémon. Verifique sua conexão e tente novamente.</p>
     <button type="button" class="btn btn__secondary" (click)="retry()">Tentar novamente</button>
   </section>
-} @else if (pokemons(); as list) {
+} @else if (results(); as list) {
   <p class="count" aria-live="polite">
     {{ list.length }} {{ list.length === 1 ? 'Pokémon encontrado' : 'Pokémon encontrados' }}
   </p>
 
   @if (list.length) {
     <ul class="grid">
-      @for (pokemon of list; track pokemon.name) {
-        @if (pokemon.detail; as detail) {
-          <li class="fadeIn">
-            <poke-card [pokemon]="detail"></poke-card>
-          </li>
-        }
+      @for (entry of visible(); track entry.name) {
+        <li class="fadeIn">
+          <poke-card [entry]="entry"></poke-card>
+        </li>
       }
     </ul>
+
+    @if (hasMore()) {
+      <button
+        type="button"
+        class="btn btn__ghost more"
+        pokeInViewport
+        (inViewport)="loadMore()"
+        (click)="loadMore()"
+      >
+        Carregar mais
+      </button>
+    }
   } @else {
     <section class="state">
       <img src="assets/pokemon.png" alt="" width="80" height="80">

@@ -7,6 +7,7 @@ import { catchError, map, of, tap } from 'rxjs';
 import { PokeApiService } from '../../service/poke-api.service';
 import { Pokemon, PokemonSpecies } from '../../models/pokeapi.model';
 import { DexNumberPipe } from '../../shared/pipes/dex-number.pipe';
+import { SpritePipe } from '../../shared/pipes/sprite.pipe';
 
 interface DetailsViewModel {
   pokemon: Pokemon | null;
@@ -32,7 +33,7 @@ const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
 
 @Component({
   selector: 'app-details',
-  imports: [RouterLink, DexNumberPipe],
+  imports: [RouterLink, DexNumberPipe, SpritePipe],
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
