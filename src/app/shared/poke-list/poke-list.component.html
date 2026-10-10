@@ -1,7 +1,21 @@
 <!--Search-->
 <poke-search [value]="query()" (term)="onSearch($event)"></poke-search>
 
-@if (apiError()) {
+<!--Type filter-->
+<div class="filters" role="group" aria-label="Filtrar por tipo">
+  <button type="button" class="type-chip" data-type="all" [attr.aria-pressed]="!type()" (click)="setType('')">Todos</button>
+  @for (name of types; track name) {
+    <button
+      type="button"
+      class="type-chip"
+      [attr.data-type]="name"
+      [attr.aria-pressed]="type() === name"
+      (click)="setType(type() === name ? '' : name)"
+    >{{ name | typeName }}</button>
+  }
+</div>
+
+@if (apiError() || typeError()) {
   <section class="state" role="alert">
     <img src="assets/error.png" alt="" width="593" height="247">
     <p>Não foi possível carregar os Pokémon. Verifique sua conexão e tente novamente.</p>
@@ -44,7 +58,7 @@
   } @else {
     <section class="state">
       <img src="assets/pokemon.png" alt="" width="80" height="80">
-      <p>Nenhum Pokémon encontrado para “{{ query() }}”.</p>
+      <p>Nenhum Pokémon{{ type() ? ' do tipo ' + (type() | typeName) : '' }} encontrado para “{{ query() }}”.</p>
     </section>
   }
 } @else {

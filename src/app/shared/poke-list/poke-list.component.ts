@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { Location } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of, startWith, Subject, switchMap } from 'rxjs';
 
@@ -16,6 +16,7 @@ import { PokemonListItem } from '../../models/pokeapi.model';
 import { PokeSearchComponent } from '../poke-search/poke-search.component';
 import { PokeCardComponent } from '../poke-card/poke-card.component';
 import { InViewportDirective } from '../directives/in-viewport.directive';
+import { TYPE_NAMES, TypeNamePipe } from '../pipes/type-name.pipe';
 
 /** Cards added per page while scrolling. */
 const PAGE_SIZE = 24;
@@ -39,6 +40,11 @@ function matcher(query: string): (entry: PokemonListItem) => boolean {
     return (entry) => idFromUrl(entry.url) === id;
   }
   return (entry) => entry.name.includes(q);
+}
+
+/** A type the app knows (`fire`), or `''` for anything else (no filter). */
+function knownType(type: string | null): string {
+  return type && type in TYPE_NAMES ? type : '';
 }
 
 /** Most look-alike names suggested when a search has no exact match. */
@@ -82,7 +88,7 @@ function editDistance(a: string, b: string): number {
 
 @Component({
   selector: 'poke-list',
-  imports: [PokeSearchComponent, PokeCardComponent, InViewportDirective],
+  imports: [PokeSearchComponent, PokeCardComponent, InViewportDirective, TypeNamePipe],
   templateUrl: './poke-list.component.html',
   styleUrls: ['./poke-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -108,15 +114,21 @@ export class PokeListComponent {
     this.route.queryParamMap.pipe(map((params) => params.get('q') ?? '')),
     { initialValue: this.route.snapshot.queryParamMap.get('q') ?? '' },
   );
+  /** Type filter from `?tipo=` (an API type name such as `fire`); `''` for all types. */
+  protected readonly type = toSignal(
+    this.route.queryParamMap.pipe(map((params) => knownType(params.get('tipo')))),
+    { initialValue: knownType(this.route.snapshot.queryParamMap.get('tipo')) },
+  );
+  protected readonly types = Object.keys(TYPE_NAMES);
   protected readonly pageSize = PAGE_SIZE;
   protected readonly priorityCards = PRIORITY_CARDS;
   /**
-   * Rendered cards; back to the first page whenever the search changes. Starts from what
-   * this history entry had loaded, so coming back from a detail page (or reloading) shows
-   * the same cards and the router can restore the scroll position.
+   * Rendered cards; back to the first page whenever the search or the type changes. Starts
+   * from what this history entry had loaded, so coming back from a detail page (or
+   * reloading) shows the same cards and the router can restore the scroll position.
    */
   protected readonly limit = linkedSignal<string, number>({
-    source: this.query,
+    source: () => `${this.query()}|${this.type()}`,
     computation: (_, previous) => (previous ? PAGE_SIZE : this.restoredLimit()),
   });
   protected readonly skeletons = Array.from({ length: SKELETON_CARDS }, (_, i) => i);
@@ -137,11 +149,26 @@ export class PokeListComponent {
     ),
   );
 
-  /** Every Pokémon matching the search — the whole index, not just the rendered cards. */
+  /** Ids of the filtered type; idle (no value) when showing every type. */
+  private readonly typeMembers = rxResource({
+    params: () => this.type() || undefined,
+    stream: ({ params: type }) => this.pokeApiService.typeMembers(type).pipe(map((ids) => new Set(ids))),
+  });
+
+  protected readonly typeError = computed(() => !!this.type() && !!this.typeMembers.error());
+
+  /** Every Pokémon matching the search and type — the whole index, not just the rendered cards. */
   private readonly matches = computed(() => {
-    const index = this.index();
+    let index = this.index();
     if (!index) {
       return undefined;
+    }
+    if (this.type()) {
+      if (!this.typeMembers.hasValue()) {
+        return undefined;
+      }
+      const members = this.typeMembers.value();
+      index = index.filter((entry) => members.has(idFromUrl(entry.url)));
     }
     if (!this.query().trim()) {
       return { list: index, approximate: false };
@@ -167,6 +194,16 @@ export class PokeListComponent {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { q: q || null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  /** Filters by a type, or shows every type again with `''`; also kept in the URL. */
+  setType(type: string): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tipo: type || null },
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
@@ -198,5 +235,8 @@ export class PokeListComponent {
   retry(): void {
     this.apiError.set(false);
     this.reload$.next();
+    if (this.typeError()) {
+      this.typeMembers.reload();
+    }
   }
 }

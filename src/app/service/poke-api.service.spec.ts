@@ -113,4 +113,27 @@ describe('PokeApiService', () => {
     service.getPokemon('pikachu').subscribe();
     http.expectOne(`${API}/pokemon/pikachu`).flush(RAW_PIKACHU);
   });
+
+  it('fetches the ids of a type once and shares them', () => {
+    let ids: number[] | undefined;
+    service.typeMembers('fire').subscribe((value) => (ids = value));
+    service.typeMembers('fire').subscribe();
+
+    http.expectOne(`${API}/type/fire`).flush({
+      pokemon: [
+        { pokemon: { name: 'charmander', url: `${API}/pokemon/4/` } },
+        { pokemon: { name: 'charizard-mega-x', url: `${API}/pokemon/10034/` } },
+      ],
+    });
+
+    expect(ids).toEqual([4, 10034]);
+  });
+
+  it('retries a type after a failed request', () => {
+    service.typeMembers('ice').subscribe({ error: () => undefined });
+    http.expectOne(`${API}/type/ice`).flush('down', { status: 500, statusText: 'Error' });
+
+    service.typeMembers('ice').subscribe();
+    http.expectOne(`${API}/type/ice`).flush({ pokemon: [] });
+  });
 });

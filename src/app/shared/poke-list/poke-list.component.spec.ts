@@ -25,6 +25,13 @@ class FakePokeApiService {
     return this.response();
   }
 
+  /** Every even id is of the requested type; forms beyond the species range come along. */
+  typeResponse: (type: string) => Observable<number[]> = () => of([2, 4, 6, 10034]);
+
+  typeMembers(type: string): Observable<number[]> {
+    return this.typeResponse(type);
+  }
+
   getPokemon(id: number): Observable<Pokemon> {
     return of({
       id,
@@ -250,6 +257,49 @@ describe('PokeListComponent', () => {
     fixture.componentInstance.onSearch('bulbsa'); // a misspelled start of a name
     await fixture.whenStable();
     expect(cards(fixture)[0].textContent).toContain('bulbasaur');
+  });
+
+  it('filters by type from the type buttons, combined with the search, and keeps it in ?tipo=', async () => {
+    const fixture = await render();
+    const router = TestBed.inject(Router);
+    const el: HTMLElement = fixture.nativeElement;
+    const fire = el.querySelector<HTMLButtonElement>('.filters [data-type="fire"]')!;
+    expect(fire.textContent).toBe('Fogo');
+
+    fire.click();
+    await fixture.whenStable();
+    expect(router.url).toBe('/?tipo=fire');
+    expect(fire.getAttribute('aria-pressed')).toBe('true');
+    expect([...el.querySelectorAll('.card__name')].map((n) => n.textContent)).toEqual(['ivysaur', 'charmander', 'poke-6']);
+
+    fixture.componentInstance.onSearch('char');
+    await fixture.whenStable();
+    expect(cards(fixture).length).toBe(1);
+
+    fire.click(); // pressing the active type again shows every type
+    await fixture.whenStable();
+    expect(router.url).toBe('/?q=char');
+    expect(el.querySelector('.filters [data-type="all"]')?.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('ignores an unknown ?tipo=', async () => {
+    await TestBed.inject(Router).navigateByUrl('/?tipo=banana');
+    const fixture = await render();
+    expect(cards(fixture).length).toBe(24);
+  });
+
+  it('shows an error state when a type cannot be loaded, and retries it', async () => {
+    api.typeResponse = () => throwError(() => new Error('offline'));
+    await TestBed.inject(Router).navigateByUrl('/?tipo=ice');
+    const fixture = await render();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('[role="alert"]')).not.toBeNull();
+
+    api.typeResponse = () => of([1]);
+    el.querySelector<HTMLButtonElement>('[role="alert"] button')!.click();
+    await fixture.whenStable();
+    expect(el.querySelector('[role="alert"]')).toBeNull();
+    expect(cards(fixture).length).toBe(1);
   });
 
   it('shows an empty state when the search has no match', async () => {

@@ -7,6 +7,7 @@ import {
   PokemonListItem,
   PokemonListResponse,
   PokemonSpecies,
+  PokemonTypeResponse,
 } from '../models/pokeapi.model';
 
 const API = 'https://pokeapi.co/api/v2';
@@ -43,6 +44,7 @@ function slim({ id, name, height, weight, sprites, stats, types }: Pokemon): Pok
 export class PokeApiService {
   private readonly http = inject(HttpClient);
   private readonly pokemonCache = new Map<string, Observable<Pokemon>>();
+  private readonly typeCache = new Map<string, Observable<number[]>>();
   private index$?: Observable<PokemonListItem[]>;
 
   /**
@@ -75,6 +77,23 @@ export class PokeApiService {
       this.pokemonCache.set(key, pokemon$);
     }
     return pokemon$;
+  }
+
+  /**
+   * Ids of the Pokémon of a type (`fire`), fetched once per type. Alternate forms
+   * (ids beyond the species range) come along too; they never match an index entry.
+   */
+  typeMembers(type: string): Observable<number[]> {
+    let ids$ = this.typeCache.get(type);
+    if (!ids$) {
+      ids$ = this.http.get<PokemonTypeResponse>(`${API}/type/${type}`).pipe(
+        map((res) => res.pokemon.map(({ pokemon }) => idFromUrl(pokemon.url))),
+        tap({ error: () => this.typeCache.delete(type) }),
+        shareReplay({ bufferSize: 1, refCount: false }),
+      );
+      this.typeCache.set(type, ids$);
+    }
+    return ids$;
   }
 
   getPokemonWithSpecies(id: string): Observable<[Pokemon, PokemonSpecies]> {

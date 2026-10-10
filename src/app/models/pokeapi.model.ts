@@ -45,6 +45,11 @@ export interface PokemonTypeSlot {
   type: { name: string };
 }
 
+/** `/type/:name` — only the Pokémon of that type are read. */
+export interface PokemonTypeResponse {
+  pokemon: Array<{ pokemon: { name: string; url: string } }>;
+}
+
 export interface PokemonSpecies {
   names: Array<{
     name: string;

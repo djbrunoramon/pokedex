@@ -3,6 +3,38 @@
 :host {
   display: block;
 
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: rem-calc(8);
+    margin-top: rem-calc(16);
+
+    // One scrollable row on phones instead of five wrapped ones
+    @media (max-width: 40rem) {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin-inline: calc(-1 * var(--gutter));
+      padding: rem-calc(2) var(--gutter);
+      scrollbar-width: none;
+    }
+
+    .type-chip {
+      flex: none;
+      padding-block: rem-calc(6);
+      opacity: 0.7;
+      cursor: pointer;
+
+      &:hover,
+      &[aria-pressed='true'] {
+        opacity: 1;
+      }
+
+      &[aria-pressed='true'] {
+        box-shadow: 0 0 0 2px var(--type-color);
+      }
+    }
+  }
+
   .count {
     margin: rem-calc(24) 0 rem-calc(12);
     font-size: rem-calc(14);
