@@ -6,6 +6,7 @@ import {
   linkedSignal,
   signal,
 } from '@angular/core';
+import { Location } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of, startWith, Subject, switchMap } from 'rxjs';
@@ -24,6 +25,11 @@ const PRIORITY_CARDS = 6;
 
 /** Number of placeholder cards shown while the index is loading. */
 const SKELETON_CARDS = 12;
+
+/** History state of the list's entry: how many cards were loaded, restored on coming back. */
+interface ListHistoryState {
+  listLimit?: number;
+}
 
 /** Matches by Pokédex number for `25` / `#25`, otherwise by name substring. */
 function matcher(query: string): (entry: PokemonListItem) => boolean {
@@ -46,6 +52,7 @@ export class PokeListComponent {
   private readonly pokeApiService = inject(PokeApiService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly location = inject(Location);
   private readonly reload$ = new Subject<void>();
 
   protected readonly apiError = signal(false);
@@ -59,8 +66,15 @@ export class PokeListComponent {
   );
   protected readonly pageSize = PAGE_SIZE;
   protected readonly priorityCards = PRIORITY_CARDS;
-  /** Rendered cards; back to the first page whenever the search changes. */
-  protected readonly limit = linkedSignal({ source: this.query, computation: () => PAGE_SIZE });
+  /**
+   * Rendered cards; back to the first page whenever the search changes. Starts from what
+   * this history entry had loaded, so coming back from a detail page (or reloading) shows
+   * the same cards and the router can restore the scroll position.
+   */
+  protected readonly limit = linkedSignal<string, number>({
+    source: this.query,
+    computation: (_, previous) => (previous ? PAGE_SIZE : this.restoredLimit()),
+  });
   protected readonly skeletons = Array.from({ length: SKELETON_CARDS }, (_, i) => i);
 
   /** Full species index; `undefined` while loading. */
@@ -107,7 +121,15 @@ export class PokeListComponent {
   loadMore(): void {
     if (this.hasMore()) {
       this.limit.update((limit) => limit + PAGE_SIZE);
+      // Remembered on this history entry only (not the URL), keeping the router's own state.
+      const state = this.location.getState() as ListHistoryState | null;
+      this.location.replaceState(this.location.path(), '', { ...state, listLimit: this.limit() });
     }
+  }
+
+  private restoredLimit(): number {
+    const limit = (this.location.getState() as ListHistoryState | null)?.listLimit;
+    return Number.isInteger(limit) && limit! > PAGE_SIZE ? limit! : PAGE_SIZE;
   }
 
   retry(): void {

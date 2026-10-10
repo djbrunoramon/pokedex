@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Location } from '@angular/common';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { Observable, of, Subject, throwError } from 'rxjs';
@@ -107,6 +108,25 @@ describe('PokeListComponent', () => {
     more()!.click();
     await fixture.whenStable();
     expect(cards(fixture).length).toBe(60);
+  });
+
+  it('remembers on the history entry how many cards were loaded', async () => {
+    const fixture = await render();
+    fixture.nativeElement.querySelector('button.more').click();
+    await fixture.whenStable();
+
+    expect(TestBed.inject(Location).getState()).toMatchObject({ listLimit: 48 });
+  });
+
+  it('restores the loaded cards when coming back to the entry (so the scroll position fits)', async () => {
+    await TestBed.inject(Router).navigateByUrl('/', { state: { listLimit: 48 } });
+
+    const fixture = await render();
+    expect(cards(fixture).length).toBe(48);
+
+    fixture.componentInstance.onSearch('poke'); // a new search starts from the first page again
+    await fixture.whenStable();
+    expect(cards(fixture).length).toBe(24);
   });
 
   it('tells how many of the results are on screen', async () => {
