@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { Observable, of, Subject, throwError } from 'rxjs';
 
 import { PokeListComponent } from './poke-list.component';
@@ -158,6 +159,38 @@ describe('PokeListComponent', () => {
     fixture.componentInstance.onSearch('');
     await fixture.whenStable();
     expect(cards(fixture).length).toBe(24);
+  });
+
+  it('writes the search to ?q= without adding history entries', async () => {
+    const fixture = await render();
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigate');
+
+    fixture.componentInstance.onSearch('pika');
+    await fixture.whenStable();
+    expect(router.url).toBe('/?q=pika');
+    expect(navigate.mock.calls[0][1]).toMatchObject({ replaceUrl: true });
+
+    fixture.componentInstance.onSearch('  ');
+    await fixture.whenStable();
+    expect(router.url).toBe('/');
+  });
+
+  it('restores the search from ?q= (e.g. coming back from a detail page)', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([{ path: '', component: PokeListComponent }]),
+        { provide: PokeApiService, useClass: FakePokeApiService },
+      ],
+    });
+
+    const harness = await RouterTestingHarness.create('/?q=char');
+    const el: HTMLElement = harness.routeNativeElement!;
+
+    expect(el.querySelector<HTMLInputElement>('input')!.value).toBe('char');
+    const names = [...el.querySelectorAll('.card__name')].map((n) => n.textContent);
+    expect(names).toEqual(['charmander']);
   });
 
   it('shows an empty state when the search has no match', async () => {

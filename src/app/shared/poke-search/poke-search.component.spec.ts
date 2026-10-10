@@ -26,6 +26,14 @@ describe('PokeSearchComponent', () => {
     expect(input.type).toBe('search');
   });
 
+  it('shows an initial value (a search restored from the URL)', () => {
+    const fixture = TestBed.createComponent(PokeSearchComponent);
+    fixture.componentRef.setInput('value', 'mew');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('input').value).toBe('mew');
+  });
+
   it('emits the term once typing pauses', () => {
     const { terms, type } = render();
 

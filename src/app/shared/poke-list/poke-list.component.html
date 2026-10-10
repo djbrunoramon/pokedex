@@ -1,5 +1,5 @@
 <!--Search-->
-<poke-search (term)="onSearch($event)"></poke-search>
+<poke-search [value]="query()" (term)="onSearch($event)"></poke-search>
 
 @if (apiError()) {
   <section class="state" role="alert">

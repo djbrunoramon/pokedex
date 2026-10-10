@@ -1,7 +1,8 @@
+import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of, tap } from 'rxjs';
 
 import { PokeApiService } from '../../service/poke-api.service';
@@ -33,7 +34,7 @@ const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
 
 @Component({
   selector: 'app-details',
-  imports: [RouterLink, DexNumberPipe, SpritePipe],
+  imports: [DexNumberPipe, SpritePipe],
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +43,14 @@ export class DetailsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly pokeApiService = inject(PokeApiService);
   private readonly title = inject(Title);
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
+
+  /**
+   * Whether this page was reached from inside the app (vs. a deep link / new tab). Read
+   * while the navigation here is still in flight, so it is the *previous* navigation.
+   */
+  private readonly cameFromApp = this.router.lastSuccessfulNavigation() !== null;
 
   protected readonly vm = toSignal(
     this.pokeApiService
@@ -80,6 +89,18 @@ export class DetailsComponent {
         }
       : null;
   });
+
+  /**
+   * Goes back through history when we came from the list, so its `?q=` search and scroll
+   * position are restored; otherwise (deep link) opens the list.
+   */
+  back(): void {
+    if (this.cameFromApp) {
+      this.location.back();
+    } else {
+      this.router.navigateByUrl('/');
+    }
+  }
 }
 
 function capitalize(value: string): string {

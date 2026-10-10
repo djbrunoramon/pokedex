@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { Location } from '@angular/common';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { Observable, of, Subject, throwError } from 'rxjs';
 
 import { DetailsComponent } from './details.component';
@@ -95,6 +96,30 @@ describe('DetailsComponent', () => {
 
     const alert = fixture.nativeElement.querySelector('[role="alert"]');
     expect(alert?.textContent).toContain('Não foi possível carregar este Pokémon');
-    expect(alert?.querySelector('a')?.getAttribute('href')).toBe('/');
+    expect(alert?.querySelector('button')?.textContent).toContain('Voltar para a lista');
+  });
+
+  it('goes back through history when it was opened from inside the app', async () => {
+    await TestBed.inject(Router).navigateByUrl('/?q=char');
+    const back = vi.spyOn(TestBed.inject(Location), 'back').mockImplementation(() => undefined);
+
+    const fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('button.back').click();
+
+    expect(back).toHaveBeenCalled();
+  });
+
+  it('opens the list when it was reached by a deep link', () => {
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    const back = vi.spyOn(TestBed.inject(Location), 'back');
+
+    const fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('button.back').click();
+
+    expect(navigate).toHaveBeenCalledWith('/');
+    expect(back).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, of, startWith, Subject, switchMap } from 'rxjs';
 
 import { idFromUrl, PokeApiService } from '../../service/poke-api.service';
@@ -33,10 +34,13 @@ function matcher(query: string): (entry: PokemonListItem) => boolean {
 })
 export class PokeListComponent {
   private readonly pokeApiService = inject(PokeApiService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly reload$ = new Subject<void>();
 
   protected readonly apiError = signal(false);
-  protected readonly query = signal('');
+  /** The search lives in `?q=`, so it survives going to a detail page and back. */
+  protected readonly query = signal(this.route.snapshot.queryParamMap.get('q') ?? '');
   protected readonly pageSize = PAGE_SIZE;
   protected readonly limit = signal(PAGE_SIZE);
   protected readonly skeletons = Array.from({ length: SKELETON_CARDS }, (_, i) => i);
@@ -72,6 +76,12 @@ export class PokeListComponent {
   onSearch(value: string): void {
     this.query.set(value);
     this.limit.set(PAGE_SIZE);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { q: value.trim() || null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   loadMore(): void {

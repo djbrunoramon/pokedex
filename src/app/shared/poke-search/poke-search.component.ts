@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { outputFromObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
@@ -13,6 +13,9 @@ const DEBOUNCE_MS = 150;
 })
 export class PokeSearchComponent {
   private readonly input$ = new Subject<string>();
+
+  /** Initial text of the field (e.g. a search restored from the URL). */
+  readonly value = input('');
 
   readonly term = outputFromObservable(
     this.input$.pipe(debounceTime(DEBOUNCE_MS), distinctUntilChanged()),
