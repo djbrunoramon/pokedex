@@ -53,6 +53,12 @@
   }
 }
 
+@keyframes float {
+  50% {
+    transform: translateY(-8px) rotate(-3deg);
+  }
+}
+
 @keyframes shimmer {
   to {
     background-position: -200% 0;

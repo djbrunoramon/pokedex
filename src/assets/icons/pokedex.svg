@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Pokédex">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff5473"/>
+      <stop offset="1" stop-color="#d6264a"/>
+    </linearGradient>
+    <radialGradient id="lens" cx="0.38" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#9ee2ff"/>
+      <stop offset="0.55" stop-color="#3ba7f0"/>
+      <stop offset="1" stop-color="#1c6fc2"/>
+    </radialGradient>
+  </defs>
+
+  <!-- corpo -->
+  <rect x="4" y="3" width="56" height="58" rx="12" fill="url(#body)"/>
+  <!-- tampa superior com o recorte clássico -->
+  <path d="M4 15 C4 8.4 9.4 3 16 3 H48 C54.6 3 60 8.4 60 15 V20 H36 L30 26 H4 Z" fill="#ff6b86"/>
+  <path d="M4 26 H30 L36 20 H60" fill="none" stroke="#a3173a" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- lente -->
+  <circle cx="17" cy="14.5" r="8.5" fill="#fff"/>
+  <circle cx="17" cy="14.5" r="6.5" fill="url(#lens)"/>
+  <circle cx="14.6" cy="12.2" r="2" fill="#fff" opacity="0.85"/>
+
+  <!-- LEDs -->
+  <circle cx="33" cy="9" r="2.4" fill="#ff2d2d" stroke="#a3173a" stroke-width="0.8"/>
+  <circle cx="40" cy="9" r="2.4" fill="#ffd23f" stroke="#a3173a" stroke-width="0.8"/>
+  <circle cx="47" cy="9" r="2.4" fill="#5fd068" stroke="#a3173a" stroke-width="0.8"/>
+
+  <!-- tela -->
+  <rect x="11" y="31" width="42" height="24" rx="4" fill="#f1f3f8"/>
+  <rect x="14" y="34" width="36" height="18" rx="2.5" fill="#262835"/>
+
+  <!-- pokébola na tela -->
+  <path d="M25 43 a7 7 0 0 1 14 0 Z" fill="#ff5473"/>
+  <path d="M25 43 a7 7 0 0 0 14 0 Z" fill="#fff"/>
+  <line x1="25" y1="43" x2="39" y2="43" stroke="#262835" stroke-width="1.6"/>
+  <circle cx="32" cy="43" r="2.4" fill="#fff" stroke="#262835" stroke-width="1.6"/>
+</svg>
