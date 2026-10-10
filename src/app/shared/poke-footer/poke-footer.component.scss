@@ -1,0 +1,28 @@
+@use "src/config-scss/rem-calc" as *;
+
+:host{
+  .footer{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: rem-calc(8);
+
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: rem-calc(24) var(--gutter);
+    border-top: 1px solid var(--border-glass);
+
+    font-size: rem-calc(14);
+    color: var(--text-on-dark-muted);
+
+    a{
+      font-weight: 600;
+      color: var(--text-on-dark);
+      text-underline-offset: 3px;
+
+      &:hover{
+        color: var(--secondary-color);
+      }
+    }
+  }
+}

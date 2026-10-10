@@ -1,19 +1,27 @@
 @use "src/config-scss/rem-calc" as *;
 
 :host{
-  header{
+  .header{
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    justify-content: center;
     align-items: center;
-    color: white;
-    font-size: 15px;
-    font-style: italic;
-    padding: rem-calc(40) 0;
+    justify-content: center;
 
-    img {
-      cursor: pointer;
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: rem-calc(28) var(--gutter);
+
+    &__logo{
+      border-radius: var(--radius-sm);
+      transition: transform var(--duration) var(--ease-out);
+
+      &:hover{
+        transform: scale(1.04);
+      }
+
+      img{
+        height: rem-calc(40);
+        width: auto;
+      }
     }
   }
 }

@@ -5,7 +5,6 @@ import { catchError, map, of } from 'rxjs';
 
 import { PokeApiService } from '../../service/poke-api.service';
 import { Pokemon, PokemonSpecies } from '../../models/pokeapi.model';
-import { PokeHeaderComponent } from '../../shared/poke-header/poke-header.component';
 
 interface DetailsViewModel {
   pokemon: Pokemon | null;
@@ -17,7 +16,7 @@ const EMPTY_VM: DetailsViewModel = { pokemon: null, species: null, error: false 
 
 @Component({
   selector: 'app-details',
-  imports: [RouterLink, PokeHeaderComponent],
+  imports: [RouterLink],
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

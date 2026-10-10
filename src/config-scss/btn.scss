@@ -1,17 +1,31 @@
 @use './rem-calc' as *;
 
 .btn {
-  display: flex;
+  display: inline-flex;
   justify-content: center;
   align-items: center;
+  gap: rem-calc(8);
 
-  width: 100%;
-  padding: rem-calc(20) 0;
-  border-radius: rem-calc(10);
+  padding: rem-calc(14) rem-calc(24);
+  border-radius: var(--radius-pill);
 
-  font-weight: 400;
-
+  font-weight: 600;
   text-decoration: none;
+
+  transition:
+    transform var(--duration) var(--ease-out),
+    box-shadow var(--duration) var(--ease-out),
+    filter var(--duration) var(--ease-out);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    filter: brightness(1.05);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 
   &__primary {
     color: var(--white);
@@ -21,5 +35,11 @@
   &__secondary {
     color: var(--white);
     background: var(--secondary-color);
+  }
+
+  &__ghost {
+    color: var(--text-on-dark);
+    background: var(--surface-glass);
+    border: 1px solid var(--border-glass);
   }
 }
