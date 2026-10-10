@@ -1,8 +1,8 @@
 <main>
   @if (!vm().error) {
     <div class="toolbar">
-      <button type="button" class="btn btn__ghost btn__small back" (click)="back()">
-        <span aria-hidden="true">←</span> Voltar
+      <button type="button" class="btn btn__ghost btn__small back" aria-label="Voltar" (click)="back()">
+        <span aria-hidden="true">←</span> <span class="back__label">Voltar</span>
       </button>
 
       <nav class="pager" aria-label="Pokémon vizinhos (setas ← e →)">

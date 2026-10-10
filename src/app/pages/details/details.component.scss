@@ -12,6 +12,13 @@
     }
   }
 
+  // Very narrow screens: only the arrow, so "Voltar" and both neighbours fit on one line
+  @media (max-width: 359.98px) {
+    .back__label {
+      display: none;
+    }
+  }
+
   .details {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, rem-calc(340)), 1fr));

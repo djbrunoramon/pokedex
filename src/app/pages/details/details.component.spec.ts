@@ -160,6 +160,15 @@ describe('DetailsComponent', () => {
     expect(back).not.toHaveBeenCalled();
   });
 
+  it('keeps the back button named "Voltar" when narrow screens hide its label', () => {
+    const fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+
+    const button: HTMLElement = fixture.nativeElement.querySelector('button.back');
+    expect(button.getAttribute('aria-label')).toBe('Voltar');
+    expect(button.querySelector('.back__label')?.textContent).toBe('Voltar');
+  });
+
   it('links the previous and next Pokémon, replacing this history entry', () => {
     const fixture = TestBed.createComponent(DetailsComponent);
     fixture.detectChanges();
