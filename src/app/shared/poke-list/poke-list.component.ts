@@ -51,7 +51,7 @@ export class PokeListComponent {
   protected readonly apiError = signal(false);
   /**
    * The search lives in `?q=` (the single source of truth), so it survives going to a
-   * detail page and back, and follows the logo link and browser back/forward.
+   * detail page and back, and follows router links and browser back/forward.
    */
   protected readonly query = toSignal(
     this.route.queryParamMap.pipe(map((params) => params.get('q') ?? '')),

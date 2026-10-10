@@ -176,7 +176,7 @@ describe('PokeListComponent', () => {
     expect(router.url).toBe('/');
   });
 
-  it('follows the URL when it changes from outside (logo link, browser back/forward)', async () => {
+  it('follows the URL when it changes from outside (router link, browser back/forward)', async () => {
     const fixture = await render();
     const router = TestBed.inject(Router);
     const input = (): HTMLInputElement => fixture.nativeElement.querySelector('input');
@@ -186,7 +186,7 @@ describe('PokeListComponent', () => {
     expect(input().value).toBe('char');
     expect(cards(fixture).length).toBe(1);
 
-    await router.navigateByUrl('/'); // the header logo
+    await router.navigateByUrl('/'); // e.g. a router link
     await fixture.whenStable();
     expect(input().value).toBe('');
     expect(cards(fixture).length).toBe(24);

@@ -70,13 +70,12 @@ src/
 │   │   ├── poke-list/   # Search, paging/infinite scroll, loading/empty/error states
 │   │   ├── poke-card/   # A card that loads its own Pokémon
 │   │   ├── poke-search/ # Debounced search box
-│   │   ├── poke-header/ # Logo
 │   │   ├── poke-footer/ # Credits
 │   │   ├── directives/  # InViewportDirective (infinite scroll trigger)
 │   │   └── pipes/       # DexNumberPipe (#001), SpritePipe (artwork fallback)
 │   ├── app.config.ts
 │   └── app.routes.ts
-├── assets/              # Logo, icons, illustrations
+├── assets/              # Icons, illustrations
 ├── config-scss/         # Global SCSS: tokens, reset, type colours, starfield, animations…
 └── styles.scss
 scripts/github-pages.mjs # Post-build step for the GitHub Pages deploy

@@ -112,7 +112,7 @@ describe('DetailsComponent', () => {
   });
 
   it('opens the list (never leaves the app) when the entry was not opened from the list', async () => {
-    // e.g. deep link → logo → browser back: the app navigated before, but the previous
+    // e.g. deep link → in-app navigation → browser back: the app navigated before, but the previous
     // history entry is outside the app
     await TestBed.inject(Router).navigateByUrl('/');
     await TestBed.inject(Router).navigateByUrl('/details/6');

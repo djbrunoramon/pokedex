@@ -46,7 +46,7 @@ test environment itself (no `src/test.ts`).
   `DetailsComponent`.
 - Every component is standalone with an explicit `imports` array, `ChangeDetectionStrategy.OnPush`,
   and `inject()` for DI. Presentational components keep `poke-*` selectors (not the `app`
-  prefix): `PokeHeaderComponent`, `PokeSearchComponent`, `PokeListComponent`.
+  prefix): `PokeSearchComponent`, `PokeListComponent`.
 
 ### Data flow
 
