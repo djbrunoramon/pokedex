@@ -1,0 +1,125 @@
+@use 'sass:list';
+
+// Céu estrelado animado atrás do conteúdo (marcação em AppComponent).
+// Cada camada é um ponto de 1–3px replicado via box-shadow; `::after` repete o
+// campo logo abaixo, então a deriva vertical faz loop sem emenda. Só transform e
+// opacity são animados (compositor). prefers-reduced-motion para tudo (reset.scss).
+
+$field-width: 2560;
+$field-height: 2000;
+
+// Gerador Park–Miller com semente fixa: o céu é o mesmo em todo build.
+@function next($seed) {
+  @return ($seed * 16807) % 2147483647;
+}
+
+@function stars($count, $seed, $color) {
+  $shadows: ();
+  $s: $seed;
+  @for $i from 1 through $count {
+    $s: next($s);
+    $x: $s % $field-width;
+    $s: next($s);
+    $y: $s % $field-height;
+    $shadows: list.append($shadows, #{$x}px #{$y}px $color, $separator: comma);
+  }
+  @return $shadows;
+}
+
+.starfield {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  will-change: transform;
+  animation: star-drift linear infinite;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: #{$field-height}px;
+    width: inherit;
+    height: inherit;
+    border-radius: inherit;
+    box-shadow: inherit;
+  }
+
+  &--sm {
+    box-shadow: stars(260, 7, rgba(255, 255, 255, 0.55));
+    animation-duration: 180s;
+  }
+
+  &--md {
+    width: 2px;
+    height: 2px;
+    box-shadow: stars(90, 13, rgba(255, 255, 255, 0.75));
+    animation-duration: 260s;
+  }
+
+  &--lg {
+    width: 3px;
+    height: 3px;
+    box-shadow: stars(30, 29, rgba(255, 255, 255, 0.95));
+    animation:
+      star-drift 360s linear infinite,
+      twinkle 3.5s ease-in-out infinite alternate;
+  }
+}
+
+// Estrela cadente ocasional: atravessa em ~1s a cada 14s
+.shooting-star {
+  position: absolute;
+  top: 12%;
+  left: 78%;
+  width: 140px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0));
+  opacity: 0;
+  transform: rotate(-32deg);
+  transform-origin: left center;
+  animation: shoot 14s ease-in 3s infinite;
+}
+
+@keyframes star-drift {
+  to {
+    transform: translateY(-#{$field-height}px);
+  }
+}
+
+@keyframes twinkle {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.35;
+  }
+}
+
+@keyframes shoot {
+  0% {
+    opacity: 0;
+    transform: rotate(-32deg) translateX(0);
+  }
+  1% {
+    opacity: 1;
+  }
+  7% {
+    opacity: 0;
+    transform: rotate(-32deg) translateX(-700px);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(-32deg) translateX(-700px);
+  }
+}

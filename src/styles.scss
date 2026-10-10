@@ -5,6 +5,7 @@
 @use "./config-scss/animation";
 @use "./config-scss/types";
 @use "./config-scss/state";
+@use "./config-scss/starfield";
 
 html{
   font-family: var(--font-family);
@@ -14,6 +15,8 @@ html{
 }
 
 body{
+  // Contexto de empilhamento próprio: o céu estrelado (z-index -1) fica acima deste fundo
+  isolation: isolate;
   // Brilho radial sutil atrás do conteúdo
   background:
     radial-gradient(60rem 30rem at 85% -10%, rgba(255, 84, 115, 0.18), transparent 70%),
