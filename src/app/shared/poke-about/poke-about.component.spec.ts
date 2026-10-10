@@ -12,6 +12,7 @@ const PIKACHU = {
 } as Pokemon;
 
 const SPECIES: PokemonSpecies = {
+  name: 'pikachu',
   names: [],
   genera: [
     { genus: 'Pokémon Ratón', language: { name: 'es' } },

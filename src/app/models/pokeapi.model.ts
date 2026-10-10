@@ -58,6 +58,8 @@ export interface PokemonTypeResponse {
 }
 
 export interface PokemonSpecies {
+  /** The species name (`darmanitan`), unlike `Pokemon.name`, which is its default form's (`darmanitan-standard`). */
+  name: string;
   names: Array<{
     name: string;
     language: { name: string };

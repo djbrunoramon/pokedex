@@ -26,6 +26,7 @@ const CHARIZARD: Pokemon = {
 };
 
 const SPECIES: PokemonSpecies = {
+  name: 'charizard',
   names: [{ name: 'リザードン', language: { name: 'ja-Hrkt' } }],
   genera: [{ genus: 'Flame Pokémon', language: { name: 'en' } }],
   flavor_text_entries: [],
@@ -94,6 +95,19 @@ describe('DetailsComponent', () => {
     expect(el.querySelectorAll('poke-stats .stats__row').length).toBe(3);
 
     expect(TestBed.inject(Title).getTitle()).toBe('Charizard | Pokédex');
+  });
+
+  it('names the species, not its default form (#555 is darmanitan, not darmanitan-standard)', () => {
+    api.response = () =>
+      of([{ ...CHARIZARD, id: 555, name: 'darmanitan-standard' }, { ...SPECIES, name: 'darmanitan' }]);
+
+    const fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('h1')?.textContent).toBe('darmanitan');
+    expect(el.querySelector('.hero__image')?.getAttribute('alt')).toBe('darmanitan');
+    expect(TestBed.inject(Title).getTitle()).toBe('Darmanitan | Pokédex');
   });
 
   it('shows the About and Evolution panels', () => {

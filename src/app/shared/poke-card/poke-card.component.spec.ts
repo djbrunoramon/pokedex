@@ -83,6 +83,14 @@ describe('PokeCardComponent', () => {
     expect(card.querySelector('img')?.getAttribute('loading')).toBe('lazy');
   });
 
+  it('shows the species name from the index, not the default form\'s', async () => {
+    api.response = () => of({ ...PIKACHU, name: 'pikachu-default-form' });
+    const fixture = render();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('.card__name').textContent).toBe('pikachu');
+  });
+
   it('loads the image eagerly for priority (above-the-fold) cards', async () => {
     const fixture = render();
     fixture.componentRef.setInput('priority', true);

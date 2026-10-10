@@ -46,7 +46,7 @@ export class DetailsComponent {
     this.route.paramMap.pipe(
       switchMap((params) =>
         this.pokeApiService.getPokemonWithSpecies(params.get('id') ?? '').pipe(
-          tap(([pokemon]) => this.title.setTitle(`${capitalize(pokemon.name)} | Pokédex`)),
+          tap(([, species]) => this.title.setTitle(`${capitalize(species.name)} | Pokédex`)),
           map(([pokemon, species]): DetailsViewModel => ({ pokemon, species, error: false })),
           catchError(() => of<DetailsViewModel>({ ...EMPTY_VM, error: true })),
           startWith(EMPTY_VM),
@@ -81,6 +81,12 @@ export class DetailsComponent {
    * the browser's back still lead to the list) and keep whether it was opened from it.
    */
   protected readonly neighbourState = { fromList: this.openedFromList() };
+
+  /**
+   * The species name: `/pokemon/:id` is the default form, which some species name after
+   * it (`darmanitan-standard`, `giratina-altered`).
+   */
+  protected readonly name = computed(() => this.vm().species?.name ?? this.vm().pokemon?.name ?? '');
 
   protected readonly primaryType = computed(
     () => this.vm().pokemon?.types[0]?.type.name ?? 'normal',
