@@ -69,6 +69,7 @@ describe('PokeCardComponent', () => {
     expect(card.textContent).toContain('#025');
     expect(card.textContent).toContain('pikachu');
     expect(card.getAttribute('data-type')).toBe('electric');
+    expect(card.querySelector('.type-chip')?.textContent).toBe('Elétrico');
     expect(card.getAttribute('href')).toBe('/details/25');
 
     // marks the detail's history entry so its "Voltar" can go back to the list

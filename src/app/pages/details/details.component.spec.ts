@@ -73,6 +73,7 @@ describe('DetailsComponent', () => {
     expect(el.querySelector('.hero__number')?.textContent).toContain('#006');
     expect(el.querySelector('.details')?.getAttribute('data-type')).toBe('fire');
     expect(el.querySelectorAll('.hero__types .type-chip').length).toBe(2);
+    expect(el.querySelector('.hero__types')?.textContent).toContain('Voador');
     expect(el.querySelector('.hero__measures')?.textContent).toContain('1,7 m');
     expect(el.querySelector('.hero__measures')?.textContent).toContain('90,5 kg');
 

@@ -6,10 +6,11 @@ import { PokemonListItem } from '../../models/pokeapi.model';
 import { idFromUrl, PokeApiService } from '../../service/poke-api.service';
 import { DexNumberPipe } from '../pipes/dex-number.pipe';
 import { SpritePipe } from '../pipes/sprite.pipe';
+import { TypeNamePipe } from '../pipes/type-name.pipe';
 
 @Component({
   selector: 'poke-card',
-  imports: [RouterLink, DexNumberPipe, SpritePipe],
+  imports: [RouterLink, DexNumberPipe, SpritePipe, TypeNamePipe],
   templateUrl: './poke-card.component.html',
   styleUrls: ['./poke-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
