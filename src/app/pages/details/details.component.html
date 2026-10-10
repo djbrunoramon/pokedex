@@ -1,8 +1,25 @@
 <main>
   @if (!vm().error) {
-    <button type="button" class="btn btn__ghost back" (click)="back()">
-      <span aria-hidden="true">←</span> Voltar
-    </button>
+    <div class="toolbar">
+      <button type="button" class="btn btn__ghost back" (click)="back()">
+        <span aria-hidden="true">←</span> Voltar
+      </button>
+
+      <nav class="pager" aria-label="Pokémon vizinhos (setas ← e →)">
+        @if (previousId(); as id) {
+          <a class="btn btn__ghost" [routerLink]="['/details', id]" [state]="neighbourState" replaceUrl
+             rel="prev" aria-keyshortcuts="ArrowLeft">
+            <span aria-hidden="true">←</span> <span class="visually-hidden">Anterior:</span> {{ id | dexNumber }}
+          </a>
+        }
+        @if (nextId(); as id) {
+          <a class="btn btn__ghost" [routerLink]="['/details', id]" [state]="neighbourState" replaceUrl
+             rel="next" aria-keyshortcuts="ArrowRight">
+            <span class="visually-hidden">Próximo:</span> {{ id | dexNumber }} <span aria-hidden="true">→</span>
+          </a>
+        }
+      </nav>
+    </div>
   }
 
   @if (vm().pokemon; as pokemon) {
@@ -15,7 +32,10 @@
 
         <ul class="hero__types">
           @for (slot of pokemon.types; track slot.type.name) {
-            <li class="type-chip" [attr.data-type]="slot.type.name">{{ slot.type.name | typeName }}</li>
+            <li>
+              <a class="type-chip" routerLink="/" [queryParams]="{ tipo: slot.type.name }" [attr.data-type]="slot.type.name"
+                 [attr.aria-label]="'Ver todos do tipo ' + (slot.type.name | typeName)">{{ slot.type.name | typeName }}</a>
+            </li>
           }
         </ul>
 

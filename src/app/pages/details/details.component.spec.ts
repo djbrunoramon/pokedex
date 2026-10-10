@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
 import { Location } from '@angular/common';
-import { ActivatedRoute, provideRouter, Router } from '@angular/router';
-import { Observable, of, Subject, throwError } from 'rxjs';
+import { ActivatedRoute, convertToParamMap, ParamMap, provideRouter, Router } from '@angular/router';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 
 import { DetailsComponent } from './details.component';
 import { PokeApiService } from '../../service/poke-api.service';
-import { Pokemon, PokemonSpecies } from '../../models/pokeapi.model';
+import { Pokemon, PokemonListItem, PokemonSpecies } from '../../models/pokeapi.model';
 
 const CHARIZARD: Pokemon = {
   id: 6,
@@ -31,21 +31,31 @@ const SPECIES: PokemonSpecies = {
 class FakePokeApiService {
   response: () => Observable<[Pokemon, PokemonSpecies]> = () => of([CHARIZARD, SPECIES]);
 
-  getPokemonWithSpecies(): Observable<[Pokemon, PokemonSpecies]> {
+  getPokemonWithSpecies(id: string): Observable<[Pokemon, PokemonSpecies]> {
+    this.requested.push(id);
     return this.response();
+  }
+
+  requested: string[] = [];
+
+  /** A Pokédex of 10 species. */
+  index(): Observable<PokemonListItem[]> {
+    return of(Array.from({ length: 10 }, (_, i) => ({ name: `p${i + 1}`, url: `/pokemon-species/${i + 1}/` })));
   }
 }
 
 describe('DetailsComponent', () => {
   let api: FakePokeApiService;
+  let params: BehaviorSubject<ParamMap>;
 
   beforeEach(async () => {
+    params = new BehaviorSubject(convertToParamMap({ id: '6' }));
     await TestBed.configureTestingModule({
       imports: [DetailsComponent],
       providers: [
         provideRouter([{ path: '**', children: [] }]),
         { provide: PokeApiService, useClass: FakePokeApiService },
-        { provide: ActivatedRoute, useValue: { snapshot: { params: { id: '6' } } } },
+        { provide: ActivatedRoute, useValue: { paramMap: params } },
       ],
     }).compileComponents();
 
@@ -140,5 +150,60 @@ describe('DetailsComponent', () => {
 
     expect(navigate).toHaveBeenCalledWith('/');
     expect(back).not.toHaveBeenCalled();
+  });
+
+  it('links the previous and next Pokémon, replacing this history entry', () => {
+    const fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+
+    const links = fixture.nativeElement.querySelectorAll('.pager a');
+    expect([...links].map((a: Element) => a.getAttribute('href'))).toEqual(['/details/5', '/details/7']);
+    expect(links[0].textContent).toContain('#005');
+    expect(links[1].textContent).toContain('#007');
+  });
+
+  it('has no previous link on the first Pokémon and no next link on the last', () => {
+    api.response = () => of([{ ...CHARIZARD, id: 1 }, SPECIES]);
+    let fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+    expect([...fixture.nativeElement.querySelectorAll('.pager a')].map((a: Element) => a.getAttribute('rel'))).toEqual(['next']);
+
+    api.response = () => of([{ ...CHARIZARD, id: 10 }, SPECIES]);
+    fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+    expect([...fixture.nativeElement.querySelectorAll('.pager a')].map((a: Element) => a.getAttribute('rel'))).toEqual(['prev']);
+  });
+
+  it('loads the new Pokémon when the :id param changes (the component is reused)', () => {
+    const fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+
+    params.next(convertToParamMap({ id: '7' }));
+    fixture.detectChanges();
+
+    expect(api.requested).toEqual(['6', '7']);
+  });
+
+  it('goes to the previous/next Pokémon with the arrow keys, keeping the way back to the list', async () => {
+    await TestBed.inject(Router).navigateByUrl('/', { state: { fromList: true } });
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    const fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+    expect(navigate).toHaveBeenLastCalledWith(['/details', 7], { replaceUrl: true, state: { fromList: true } });
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
+    expect(navigate).toHaveBeenLastCalledWith(['/details', 5], { replaceUrl: true, state: { fromList: true } });
+  });
+
+  it('links each type to the list filtered by it', () => {
+    const fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+
+    const fire: HTMLAnchorElement = fixture.nativeElement.querySelector('.hero__types a');
+    expect(fire.getAttribute('href')).toBe('/?tipo=fire');
+    expect(fire.textContent).toBe('Fogo');
   });
 });

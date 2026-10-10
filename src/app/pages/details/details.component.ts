@@ -2,8 +2,8 @@ import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, map, of, tap } from 'rxjs';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { catchError, map, of, startWith, switchMap, tap } from 'rxjs';
 
 import { PokeApiService } from '../../service/poke-api.service';
 import { Pokemon, PokemonSpecies } from '../../models/pokeapi.model';
@@ -35,10 +35,13 @@ const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
 
 @Component({
   selector: 'app-details',
-  imports: [DexNumberPipe, SpritePipe, TypeNamePipe],
+  imports: [RouterLink, DexNumberPipe, SpritePipe, TypeNamePipe],
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:keydown)': 'onArrowKey($event)',
+  },
 })
 export class DetailsComponent {
   private readonly route = inject(ActivatedRoute);
@@ -47,17 +50,46 @@ export class DetailsComponent {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
-
+  /** Follows the `:id` param: going to the previous/next Pokémon reuses this component. */
   protected readonly vm = toSignal(
-    this.pokeApiService
-      .getPokemonWithSpecies(String(this.route.snapshot.params['id']))
-      .pipe(
-        tap(([pokemon]) => this.title.setTitle(`${capitalize(pokemon.name)} | Pokédex`)),
-        map(([pokemon, species]): DetailsViewModel => ({ pokemon, species, error: false })),
-        catchError(() => of<DetailsViewModel>({ ...EMPTY_VM, error: true })),
+    this.route.paramMap.pipe(
+      switchMap((params) =>
+        this.pokeApiService.getPokemonWithSpecies(params.get('id') ?? '').pipe(
+          tap(([pokemon]) => this.title.setTitle(`${capitalize(pokemon.name)} | Pokédex`)),
+          map(([pokemon, species]): DetailsViewModel => ({ pokemon, species, error: false })),
+          catchError(() => of<DetailsViewModel>({ ...EMPTY_VM, error: true })),
+          startWith(EMPTY_VM),
+        ),
       ),
+    ),
     { initialValue: EMPTY_VM },
   );
+
+  /** Number of species (the last Pokédex number); 0 until known. */
+  private readonly speciesCount = toSignal(
+    this.pokeApiService.index().pipe(
+      map((index) => index.length),
+      catchError(() => of(0)),
+    ),
+    { initialValue: 0 },
+  );
+
+  /** Neighbouring Pokédex numbers, `null` at either end of the Pokédex. */
+  protected readonly previousId = computed(() => {
+    const id = this.vm().pokemon?.id;
+    return id && id > 1 && id <= this.speciesCount() ? id - 1 : null;
+  });
+
+  protected readonly nextId = computed(() => {
+    const id = this.vm().pokemon?.id;
+    return id && id < this.speciesCount() ? id + 1 : null;
+  });
+
+  /**
+   * History state for the previous/next links: they replace this entry (so "Voltar" and
+   * the browser's back still lead to the list) and keep whether it was opened from it.
+   */
+  protected readonly neighbourState = { fromList: this.openedFromList() };
 
   protected readonly primaryType = computed(
     () => this.vm().pokemon?.types[0]?.type.name ?? 'normal',
@@ -93,12 +125,30 @@ export class DetailsComponent {
   back(): void {
     // Set by the list's cards on this history entry; survives reloads and back/forward,
     // unlike "the app navigated before", which can't tell what the previous entry is.
-    const state = this.location.getState() as { fromList?: boolean } | null;
-    if (state?.fromList) {
+    if (this.openedFromList()) {
       this.location.back();
     } else {
       this.router.navigateByUrl('/');
     }
+  }
+
+  /** ← and → go to the previous and next Pokémon, unless the user is typing somewhere. */
+  protected onArrowKey(event: KeyboardEvent): void {
+    const target = event.target;
+    const typing = target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]');
+    if (typing || event.altKey || event.ctrlKey || event.metaKey) {
+      return;
+    }
+    const id =
+      event.key === 'ArrowLeft' ? this.previousId() : event.key === 'ArrowRight' ? this.nextId() : null;
+    if (id) {
+      event.preventDefault();
+      this.router.navigate(['/details', id], { replaceUrl: true, state: this.neighbourState });
+    }
+  }
+
+  private openedFromList(): boolean {
+    return !!(this.location.getState() as { fromList?: boolean } | null)?.fromList;
   }
 }
 

@@ -60,8 +60,8 @@ export class PokeSearchComponent {
 
   /** `/` focuses the search from anywhere on the page, unless the user is typing somewhere. */
   protected onShortcut(event: KeyboardEvent): void {
-    const target = event.target as HTMLElement | null;
-    const typing = target?.closest('input, textarea, select, [contenteditable="true"]');
+    const target = event.target;
+    const typing = target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]');
     if (event.key === '/' && !typing && !event.ctrlKey && !event.metaKey && !event.altKey) {
       event.preventDefault();
       this.field().nativeElement.focus();

@@ -1,9 +1,20 @@
 @use 'src/config-scss/rem-calc' as *;
 
 :host {
-  .back {
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: rem-calc(12);
     margin-bottom: rem-calc(20);
-    padding: rem-calc(10) rem-calc(18);
+
+    .btn {
+      padding: rem-calc(10) rem-calc(18);
+    }
+  }
+
+  .pager {
+    display: flex;
+    gap: rem-calc(8);
   }
 
   .details {
