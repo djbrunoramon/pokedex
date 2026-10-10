@@ -28,20 +28,4 @@
       border-radius: var(--radius-lg);
     }
   }
-
-  .state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: rem-calc(20);
-
-    margin-top: rem-calc(48);
-    text-align: center;
-    color: var(--text-on-dark-muted);
-
-    &__image {
-      width: auto;
-      max-height: rem-calc(160);
-    }
-  }
 }

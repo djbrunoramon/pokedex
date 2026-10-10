@@ -4,6 +4,7 @@
 @use "./config-scss/btn";
 @use "./config-scss/animation";
 @use "./config-scss/types";
+@use "./config-scss/state";
 
 html{
   font-family: var(--font-family);

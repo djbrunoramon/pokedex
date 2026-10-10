@@ -20,6 +20,10 @@ export interface PokemonWithDetail extends PokemonListItem {
 export interface Pokemon {
   id: number;
   name: string;
+  /** Height in decimetres. */
+  height: number;
+  /** Weight in hectograms. */
+  weight: number;
   sprites: PokemonSprites;
   stats: PokemonStat[];
   types: PokemonTypeSlot[];

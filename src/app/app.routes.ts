@@ -4,6 +4,6 @@ import { HomeComponent } from './pages/home/home.component';
 import { DetailsComponent } from './pages/details/details.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: '', component: HomeComponent, title: 'Pokédex' },
   { path: 'details/:id', component: DetailsComponent },
 ];

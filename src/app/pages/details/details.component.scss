@@ -1,126 +1,126 @@
 @use 'src/config-scss/rem-calc' as *;
 
 :host {
-  main {
-    margin-top: rem-calc(40);
+  .back {
+    margin-bottom: rem-calc(20);
+    padding: rem-calc(10) rem-calc(18);
+  }
 
-    .pokemon__names {
-      position: relative;
+  .details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, rem-calc(340)), 1fr));
+    gap: rem-calc(20);
+  }
+
+  .hero,
+  .panel,
+  .details__placeholder {
+    min-height: rem-calc(420);
+    padding: rem-calc(32);
+    border-radius: var(--radius-lg);
+  }
+
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    text-align: center;
+    background:
+      radial-gradient(circle at 50% 60%, rgba(255, 255, 255, 0.22), transparent 60%),
+      color-mix(in srgb, var(--type-color) 50%, var(--primary-color-dark));
+
+    &__watermark {
+      position: absolute;
+      inset: 50% 0 auto;
+      translate: 0 -50%;
+      font-family: var(--font-family), 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+      font-size: rem-calc(96);
+      font-weight: 800;
+      line-height: 1;
+      opacity: 0.12;
+      white-space: nowrap;
+    }
+
+    &__number {
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    &__name {
+      font-size: clamp(#{rem-calc(32)}, 5vw, #{rem-calc(44)});
+      font-weight: 800;
+      text-transform: capitalize;
+    }
+
+    &__types {
       display: flex;
-      align-items: flex-end;
-      justify-content: flex-end;
-
-      height: 75px;
-
-      padding: 0 rem-calc(30);
-
-      h1 {
-        font-weight: 400;
-        color: var(--white);
-        font-size: rem-calc(32);
-        text-transform: capitalize;
-      }
-
-      h2 {
-        position: absolute;
-        font-weight: 100;
-        top: 0;
-        font-size: rem-calc(60);
-        color: rgba(255, 255, 255, 0.1);
-      }
-
-      h1,
-      h2 {
-        //Remove Bug Animation
-        -webkit-animation-fill-mode: none !important;
-        animation-fill-mode: none !important;
-      }
+      gap: rem-calc(8);
+      margin-top: rem-calc(8);
     }
 
-    .pokemon__status {
-      position: relative;
-
-      img {
-        position: absolute;
-        top: rem-calc(-90);
-        left: rem-calc(30);
-        max-width: rem-calc(130);
-        z-index: 10;
-
-        //Remove Bug Animation
-        -webkit-animation-fill-mode: none !important;
-        animation-fill-mode: none !important;
-      }
-
-      &__statistics {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-
-        background: var(--white);
-
-        min-height: 43.9vh;
-        margin-top: rem-calc(10);
-
-        padding: rem-calc(110) rem-calc(35) rem-calc(30);
-        border-radius: rem-calc(50) rem-calc(50) 0 0;
-
-        h3 {
-          margin-bottom: rem-calc(20);
-          font-weight: 700;
-          font-style: italic;
-          font-size: rem-calc(32);
-          text-decoration: underline;
-          color: var(--secondary-color);
-        }
-
-        ol {
-          li {
-            display: flex;
-            justify-content: space-between;
-
-            font-size: rem-calc(18);
-            line-height: 130%;
-            text-transform: capitalize;
-            font-weight: 400;
-          }
-        }
-
-        section {
-          margin-bottom: rem-calc(40);
-        }
-      }
+    &__image {
+      width: rem-calc(220);
+      height: rem-calc(220);
+      margin: rem-calc(24) 0;
+      object-fit: contain;
+      filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.35));
     }
 
-    @media (max-width: 420px) {
-      margin-top: rem-calc(10);
+    &__measures {
+      display: flex;
+      gap: rem-calc(40);
 
-      .pokemon__names {
-        h1 {
-          font-size: rem-calc(20);
-        }
-
-        h2 {
-          top: rem-calc(35);
-          font-size: rem-calc(20);
-        }
+      dt {
+        font-size: rem-calc(13);
+        opacity: 0.8;
       }
 
-      .pokemon__status {
-        position: relative;
-
-        img {
-          position: absolute;
-          top: rem-calc(-80);
-          left: rem-calc(0);
-          max-width: rem-calc(100);
-        }
-
-        &__statistics {
-          min-height: 57vh;
-          padding-top: rem-calc(50);
-        }
+      dd {
+        font-weight: 800;
       }
+    }
+  }
+
+  .panel {
+    color: var(--text);
+    background: var(--surface);
+
+    h2 {
+      margin-bottom: rem-calc(24);
+      font-size: rem-calc(22);
+      font-weight: 800;
+    }
+  }
+
+  .stats__row {
+    display: grid;
+    grid-template-columns: rem-calc(110) rem-calc(40) 1fr;
+    align-items: center;
+    gap: rem-calc(12);
+    padding: rem-calc(9) 0;
+
+    &--total {
+      margin-top: rem-calc(8);
+      border-top: 1px solid var(--surface-muted);
+    }
+  }
+
+  .stats__label {
+    color: var(--text-muted);
+  }
+
+  .stats__bar {
+    height: rem-calc(8);
+    border-radius: var(--radius-pill);
+    background: var(--surface-muted);
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--type-color);
     }
   }
 }

@@ -3,7 +3,7 @@
 
 @if (apiError()) {
   <section class="state" role="alert">
-    <img src="assets/error.png" alt="" width="593" height="247" class="state__image">
+    <img src="assets/error.png" alt="" width="593" height="247">
     <p>Não foi possível carregar os Pokémon. Verifique sua conexão e tente novamente.</p>
     <button type="button" class="btn btn__secondary" (click)="retry()">Tentar novamente</button>
   </section>
@@ -24,7 +24,7 @@
     </ul>
   } @else {
     <section class="state">
-      <img src="assets/pokemon.png" alt="" width="80" height="80" class="state__image">
+      <img src="assets/pokemon.png" alt="" width="80" height="80">
       <p>Nenhum Pokémon encontrado para “{{ query() }}”.</p>
     </section>
   }

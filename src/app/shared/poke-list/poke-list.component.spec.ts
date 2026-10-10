@@ -13,6 +13,8 @@ function detail(id: number, name: string, type: string): PokemonWithDetail {
     detail: {
       id,
       name,
+      height: 7,
+      weight: 69,
       sprites: { other: { dream_world: { front_default: `${name}.svg` } } },
       stats: [],
       types: [{ type: { name: type } }],

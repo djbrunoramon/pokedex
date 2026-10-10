@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
+import { catchError, map, of, tap } from 'rxjs';
 
 import { PokeApiService } from '../../service/poke-api.service';
 import { Pokemon, PokemonSpecies } from '../../models/pokeapi.model';
+import { DexNumberPipe } from '../../shared/pipes/dex-number.pipe';
 
 interface DetailsViewModel {
   pokemon: Pokemon | null;
@@ -14,9 +16,23 @@ interface DetailsViewModel {
 
 const EMPTY_VM: DetailsViewModel = { pokemon: null, species: null, error: false };
 
+/** Highest base stat any Pokémon has (Blissey's HP); scales the stat bars. */
+const MAX_BASE_STAT = 255;
+
+const STAT_LABELS: Record<string, string> = {
+  hp: 'HP',
+  attack: 'Ataque',
+  defense: 'Defesa',
+  'special-attack': 'Ataque Esp.',
+  'special-defense': 'Defesa Esp.',
+  speed: 'Velocidade',
+};
+
+const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
+
 @Component({
   selector: 'app-details',
-  imports: [RouterLink],
+  imports: [RouterLink, DexNumberPipe],
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,14 +40,47 @@ const EMPTY_VM: DetailsViewModel = { pokemon: null, species: null, error: false 
 export class DetailsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly pokeApiService = inject(PokeApiService);
+  private readonly title = inject(Title);
 
   protected readonly vm = toSignal(
     this.pokeApiService
       .getPokemonWithSpecies(String(this.route.snapshot.params['id']))
       .pipe(
+        tap(([pokemon]) => this.title.setTitle(`${capitalize(pokemon.name)} | Pokédex`)),
         map(([pokemon, species]): DetailsViewModel => ({ pokemon, species, error: false })),
         catchError(() => of<DetailsViewModel>({ ...EMPTY_VM, error: true })),
       ),
     { initialValue: EMPTY_VM },
   );
+
+  protected readonly primaryType = computed(
+    () => this.vm().pokemon?.types[0]?.type.name ?? 'normal',
+  );
+
+  protected readonly stats = computed(() =>
+    (this.vm().pokemon?.stats ?? []).map(({ stat, base_stat }) => ({
+      name: stat.name,
+      label: STAT_LABELS[stat.name] ?? stat.name,
+      value: base_stat,
+      percent: Math.min(100, (base_stat / MAX_BASE_STAT) * 100),
+    })),
+  );
+
+  protected readonly total = computed(() =>
+    this.stats().reduce((sum, stat) => sum + stat.value, 0),
+  );
+
+  protected readonly measures = computed(() => {
+    const pokemon = this.vm().pokemon;
+    return pokemon
+      ? {
+          height: `${decimal.format(pokemon.height / 10)} m`,
+          weight: `${decimal.format(pokemon.weight / 10)} kg`,
+        }
+      : null;
+  });
+}
+
+function capitalize(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }

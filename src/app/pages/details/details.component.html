@@ -1,45 +1,70 @@
 <main>
-  @if (vm().pokemon; as pokemon) {
-    <section class="pokemon__names">
-      <h1 class="slideInLeft">{{ pokemon.name }}</h1>
-      <h2 class="slideInRight">{{ vm().species?.names?.[0]?.name }}</h2>
-    </section>
-
-    <section class="pokemon__status">
-      <img
-        [src]="pokemon.sprites.other.dream_world.front_default"
-        [alt]="pokemon.name"
-        class="slideInDown"
-      >
-
-      <article class="pokemon__status__statistics fadeIn">
-        <section>
-          <h3>Estatísticas</h3>
-
-          <ol>
-            @for (value of pokemon.stats; track value.stat.name) {
-              <li>
-                {{ value.stat.name }}
-                <strong>
-                  {{ value.base_stat }}
-                </strong>
-              </li>
-            }
-          </ol>
-        </section>
-
-        <a [routerLink]="['']" class="btn btn__secondary">
-          Voltar
-        </a>
-      </article>
-    </section>
+  @if (!vm().error) {
+    <a [routerLink]="['']" class="btn btn__ghost back">
+      <span aria-hidden="true">←</span> Voltar
+    </a>
   }
 
-  @if (vm().error) {
-    <img
-      src="assets/error.png"
-      alt="Erro ao carregar"
-      width="100%"
-    >
+  @if (vm().pokemon; as pokemon) {
+    <article class="details" [attr.data-type]="primaryType()">
+      <section class="hero fadeIn">
+        <span class="hero__watermark" lang="ja" aria-hidden="true">{{ vm().species?.names?.[0]?.name }}</span>
+
+        <p class="hero__number">{{ pokemon.id | dexNumber }}</p>
+        <h1 class="hero__name">{{ pokemon.name }}</h1>
+
+        <ul class="hero__types">
+          @for (slot of pokemon.types; track slot.type.name) {
+            <li class="type-chip" [attr.data-type]="slot.type.name">{{ slot.type.name }}</li>
+          }
+        </ul>
+
+        <img
+          class="hero__image popIn"
+          [src]="pokemon.sprites.other.dream_world.front_default"
+          [alt]="pokemon.name"
+          width="240"
+          height="240"
+        >
+
+        @if (measures(); as m) {
+          <dl class="hero__measures">
+            <div><dt>Altura</dt><dd>{{ m.height }}</dd></div>
+            <div><dt>Peso</dt><dd>{{ m.weight }}</dd></div>
+          </dl>
+        }
+      </section>
+
+      <section class="panel fadeInUp" aria-labelledby="stats-title">
+        <h2 id="stats-title">Estatísticas base</h2>
+
+        <ul class="stats">
+          @for (stat of stats(); track stat.name) {
+            <li class="stats__row">
+              <span class="stats__label">{{ stat.label }}</span>
+              <strong class="stats__value">{{ stat.value }}</strong>
+              <span class="stats__bar" aria-hidden="true">
+                <span [style.width.%]="stat.percent"></span>
+              </span>
+            </li>
+          }
+          <li class="stats__row stats__row--total">
+            <span class="stats__label">Total</span>
+            <strong class="stats__value">{{ total() }}</strong>
+          </li>
+        </ul>
+      </section>
+    </article>
+  } @else if (vm().error) {
+    <section class="state" role="alert">
+      <img src="assets/error.png" alt="" width="593" height="247">
+      <p>Não foi possível carregar este Pokémon.</p>
+      <a [routerLink]="['']" class="btn btn__secondary">Voltar para a lista</a>
+    </section>
+  } @else {
+    <div class="details" aria-busy="true" aria-label="Carregando Pokémon">
+      <div class="details__placeholder skeleton"></div>
+      <div class="details__placeholder skeleton"></div>
+    </div>
   }
 </main>
