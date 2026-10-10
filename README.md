@@ -1,10 +1,10 @@
-# Pokedex
+# Pokédex
 
 A single-page app for browsing Pokémon, built with Angular and powered by the public [PokéAPI](https://pokeapi.co/). The UI is in Portuguese (pt-BR).
 
 ## Live preview
 
-[Pokedex on GitHub Pages](https://djbrunoramon.github.io/pokedex/)
+[Pokédex on GitHub Pages](https://djbrunoramon.github.io/pokedex/)
 
 ## Features
 
