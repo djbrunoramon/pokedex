@@ -41,6 +41,45 @@ function matcher(query: string): (entry: PokemonListItem) => boolean {
   return (entry) => entry.name.includes(q);
 }
 
+/** Most look-alike names suggested when a search has no exact match. */
+const MAX_SUGGESTIONS = 12;
+
+/**
+ * Names within a couple of typos of the query (`pikachuu`, `charmender`), closest first —
+ * compared with the whole name and with its start, so a misspelled partial name also works.
+ * Only for names: a number either exists or not.
+ */
+function lookAlikes(index: PokemonListItem[], query: string): PokemonListItem[] {
+  const q = query.trim().toLowerCase();
+  if (q.length < 3 || /^#?\d+$/.test(q)) {
+    return [];
+  }
+  const maxTypos = q.length <= 5 ? 1 : 2;
+  return index
+    .map((entry) => ({
+      entry,
+      typos: Math.min(editDistance(q, entry.name), editDistance(q, entry.name.slice(0, q.length))),
+    }))
+    .filter(({ typos }) => typos <= maxTypos)
+    .sort((a, b) => a.typos - b.typos)
+    .slice(0, MAX_SUGGESTIONS)
+    .map(({ entry }) => entry);
+}
+
+/** Levenshtein distance: the fewest insertions, deletions or substitutions from `a` to `b`. */
+function editDistance(a: string, b: string): number {
+  let previous = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const current = [i];
+    for (let j = 1; j <= b.length; j++) {
+      const substitution = previous[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1);
+      current[j] = Math.min(previous[j] + 1, current[j - 1] + 1, substitution);
+    }
+    previous = current;
+  }
+  return previous[b.length];
+}
+
 @Component({
   selector: 'poke-list',
   imports: [PokeSearchComponent, PokeCardComponent, InViewportDirective],
@@ -99,13 +138,23 @@ export class PokeListComponent {
   );
 
   /** Every Pokémon matching the search — the whole index, not just the rendered cards. */
-  protected readonly results = computed(() => {
+  private readonly matches = computed(() => {
     const index = this.index();
     if (!index) {
       return undefined;
     }
-    return this.query().trim() ? index.filter(matcher(this.query())) : index;
+    if (!this.query().trim()) {
+      return { list: index, approximate: false };
+    }
+    const exact = index.filter(matcher(this.query()));
+    return exact.length
+      ? { list: exact, approximate: false }
+      : { list: lookAlikes(index, this.query()), approximate: true };
   });
+
+  protected readonly results = computed(() => this.matches()?.list);
+  /** The results are look-alike names, since nothing matched the search exactly. */
+  protected readonly approximate = computed(() => this.matches()?.approximate ?? false);
 
   protected readonly visible = computed(() => this.results()?.slice(0, this.limit()) ?? []);
   protected readonly hasMore = computed(() => (this.results()?.length ?? 0) > this.limit());

@@ -239,6 +239,19 @@ describe('PokeListComponent', () => {
     expect(names).toEqual(['charmander']);
   });
 
+  it('suggests look-alike names when a misspelled search has no exact match', async () => {
+    const fixture = await render();
+
+    fixture.componentInstance.onSearch('charmender');
+    await fixture.whenStable();
+    expect([...fixture.nativeElement.querySelectorAll('.card__name')].map((n: Element) => n.textContent)).toEqual(['charmander']);
+    expect(fixture.nativeElement.querySelector('.count').textContent).toContain('Nenhum resultado exato para “charmender”. Você quis dizer:');
+
+    fixture.componentInstance.onSearch('bulbsa'); // a misspelled start of a name
+    await fixture.whenStable();
+    expect(cards(fixture)[0].textContent).toContain('bulbasaur');
+  });
+
   it('shows an empty state when the search has no match', async () => {
     const fixture = await render();
 

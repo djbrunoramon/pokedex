@@ -9,9 +9,13 @@
   </section>
 } @else if (results(); as list) {
   <p class="count" aria-live="polite">
-    {{ list.length }} {{ list.length === 1 ? 'Pokémon encontrado' : 'Pokémon encontrados' }}
-    @if (list.length > visible().length) {
-      · exibindo {{ visible().length }}
+    @if (approximate() && list.length) {
+      Nenhum resultado exato para “{{ query() }}”. Você quis dizer:
+    } @else {
+      {{ list.length }} {{ list.length === 1 ? 'Pokémon encontrado' : 'Pokémon encontrados' }}
+      @if (list.length > visible().length) {
+        · exibindo {{ visible().length }}
+      }
     }
   </p>
 
