@@ -48,3 +48,8 @@ Thumbs.db
 
 # artefatos locais do dev-task-flow
 temp/
+
+# Playwright
+/test-results
+/playwright-report
+/blob-report
