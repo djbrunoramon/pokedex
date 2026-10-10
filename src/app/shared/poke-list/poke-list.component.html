@@ -1,36 +1,37 @@
 <!--Search-->
 <poke-search (term)="onSearch($event)"></poke-search>
 
-<section class="list-pokemons">
-  @for (pokemon of pokemons(); track pokemon.name) {
-    @if (pokemon.detail; as detail) {
-      <a [routerLink]="['details', detail.id]" class="pokemon">
-        <section class="pokemon__status">
-          <h2>
-            {{ pokemon.name }}
-          </h2>
-          <ul>
-            @for (slot of detail.types; track slot.type.name) {
-              <li>
-                {{ slot.type.name }}
-              </li>
-            }
-          </ul>
-        </section>
-
-        <section class="pokemon__image">
-          <img [src]="detail.sprites.other.dream_world.front_default"
-               [alt]="pokemon.name">
-        </section>
-      </a>
-    }
-  }
-</section>
-
 @if (apiError()) {
-  <img
-    src="assets/error.png"
-    alt="Erro ao carregar"
-    width="100%"
-  >
+  <section class="state" role="alert">
+    <img src="assets/error.png" alt="" width="593" height="247" class="state__image">
+    <p>Não foi possível carregar os Pokémon. Verifique sua conexão e tente novamente.</p>
+    <button type="button" class="btn btn__secondary" (click)="retry()">Tentar novamente</button>
+  </section>
+} @else if (pokemons(); as list) {
+  <p class="count" aria-live="polite">
+    {{ list.length }} {{ list.length === 1 ? 'Pokémon encontrado' : 'Pokémon encontrados' }}
+  </p>
+
+  @if (list.length) {
+    <ul class="grid">
+      @for (pokemon of list; track pokemon.name) {
+        @if (pokemon.detail; as detail) {
+          <li class="fadeIn">
+            <poke-card [pokemon]="detail"></poke-card>
+          </li>
+        }
+      }
+    </ul>
+  } @else {
+    <section class="state">
+      <img src="assets/pokemon.png" alt="" width="80" height="80" class="state__image">
+      <p>Nenhum Pokémon encontrado para “{{ query() }}”.</p>
+    </section>
+  }
+} @else {
+  <ul class="grid" aria-busy="true" aria-label="Carregando Pokémon">
+    @for (i of skeletons; track i) {
+      <li class="skeleton grid__placeholder"></li>
+    }
+  </ul>
 }

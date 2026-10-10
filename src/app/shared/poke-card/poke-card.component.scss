@@ -1,0 +1,89 @@
+@use "src/config-scss/rem-calc" as *;
+
+:host {
+  display: block;
+
+  .card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: rem-calc(12);
+
+    height: 100%;
+    padding: rem-calc(20);
+    overflow: hidden;
+    isolation: isolate;
+
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+
+    color: var(--text);
+    text-decoration: none;
+
+    transition:
+      transform var(--duration) var(--ease-out),
+      box-shadow var(--duration) var(--ease-out);
+
+    // Halo da cor do tipo atrás da imagem
+    &::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      right: rem-calc(-40);
+      top: 50%;
+      width: rem-calc(170);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, color-mix(in srgb, var(--type-color) 45%, transparent), transparent 70%);
+      translate: 0 -50%;
+    }
+
+    &:hover,
+    &:focus-visible {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+
+      .card__image {
+        transform: scale(1.08) rotate(-3deg);
+      }
+    }
+
+    &__info {
+      min-width: 0;
+    }
+
+    &__number {
+      font-size: rem-calc(13);
+      font-weight: 600;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    &__name {
+      margin: rem-calc(2) 0 rem-calc(10);
+      font-size: rem-calc(20);
+      font-weight: 800;
+      text-transform: capitalize;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &__types {
+      display: flex;
+      flex-wrap: wrap;
+      gap: rem-calc(6);
+    }
+
+    &__image {
+      flex-shrink: 0;
+      width: rem-calc(96);
+      height: rem-calc(96);
+      object-fit: contain;
+      filter: drop-shadow(0 8px 10px rgba(15, 16, 30, 0.25));
+      transition: transform var(--duration) var(--ease-out);
+    }
+  }
+}

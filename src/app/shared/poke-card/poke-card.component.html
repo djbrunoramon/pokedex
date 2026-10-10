@@ -1,0 +1,21 @@
+<a [routerLink]="['/details', pokemon().id]" class="card" [attr.data-type]="primaryType()">
+  <div class="card__info">
+    <span class="card__number">{{ pokemon().id | dexNumber }}</span>
+    <h2 class="card__name">{{ pokemon().name }}</h2>
+    <ul class="card__types">
+      @for (slot of pokemon().types; track slot.type.name) {
+        <li class="type-chip" [attr.data-type]="slot.type.name">{{ slot.type.name }}</li>
+      }
+    </ul>
+  </div>
+
+  <img
+    class="card__image"
+    [src]="pokemon().sprites.other.dream_world.front_default"
+    [alt]="pokemon().name"
+    width="96"
+    height="96"
+    loading="lazy"
+    decoding="async"
+  >
+</a>

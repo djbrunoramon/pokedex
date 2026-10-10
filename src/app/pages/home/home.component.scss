@@ -1,1 +1,24 @@
+@use 'src/config-scss/rem-calc' as *;
 
+:host {
+  .hero {
+    padding: rem-calc(24) 0 rem-calc(32);
+    text-align: center;
+
+    h1 {
+      font-size: clamp(#{rem-calc(32)}, 6vw, #{rem-calc(52)});
+      font-weight: 800;
+      letter-spacing: -0.02em;
+
+      span {
+        color: var(--secondary-color);
+      }
+    }
+
+    p {
+      max-width: rem-calc(520);
+      margin: rem-calc(12) auto 0;
+      color: var(--text-on-dark-muted);
+    }
+  }
+}

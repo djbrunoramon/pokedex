@@ -1,7 +1,14 @@
-<form>
-  <input type="text" #input (keyup)="onSearch(input.value)"
-         placeholder="Buscar Pokemon..."
-         autofocus
+<form class="search" role="search" (submit)="$event.preventDefault()">
+  <label for="poke-search" class="visually-hidden">Buscar Pokémon pelo nome</label>
+  <img src="assets/icons/search.svg" alt="" width="18" height="18" class="search__icon">
+  <input
+    id="poke-search"
+    #input
+    type="search"
+    class="search__input"
+    (input)="onSearch(input.value)"
+    placeholder="Buscar Pokémon pelo nome…"
+    autocomplete="off"
+    spellcheck="false"
   >
-  <img src="assets/icons/search.svg" alt="Buscar Pokemon">
 </form>
