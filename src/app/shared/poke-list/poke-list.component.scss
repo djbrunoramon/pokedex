@@ -35,8 +35,30 @@
     }
   }
 
+  .bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: rem-calc(16);
+  }
+
+  .sort {
+    display: flex;
+    align-items: center;
+    gap: rem-calc(8);
+    font-size: rem-calc(14);
+    color: var(--text-on-dark-muted);
+
+    select {
+      padding: rem-calc(8) rem-calc(14);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-pill);
+      background: var(--primary-color);
+      color: var(--text-on-dark);
+    }
+  }
+
   .count {
-    margin: rem-calc(24) 0 rem-calc(12);
+    margin: rem-calc(8) 0 rem-calc(12);
     font-size: rem-calc(14);
     color: var(--text-on-dark-muted);
   }

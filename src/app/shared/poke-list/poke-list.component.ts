@@ -12,7 +12,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of, startWith, Subject, switchMap } from 'rxjs';
 
 import { idFromUrl, PokeApiService } from '../../service/poke-api.service';
-import { PokemonListItem } from '../../models/pokeapi.model';
+import { PokemonListItem, PokemonSummary } from '../../models/pokeapi.model';
 import { PokeSearchComponent } from '../poke-search/poke-search.component';
 import { PokeCardComponent } from '../poke-card/poke-card.component';
 import { InViewportDirective } from '../directives/in-viewport.directive';
@@ -45,6 +45,47 @@ function matcher(query: string): (entry: PokemonListItem) => boolean {
 /** A type the app knows (`fire`), or `''` for anything else (no filter). */
 function knownType(type: string | null): string {
   return type && type in TYPE_NAMES ? type : '';
+}
+
+/** List orders (`?ordem=`), by label; `''` is the Pokédex order. */
+export const SORTS: Readonly<Record<string, string>> = {
+  '': 'Número',
+  nome: 'Nome (A–Z)',
+  total: 'Total de estatísticas',
+  tipo: 'Tipo',
+};
+
+/** Orders that need every Pokémon's stat total and types (PokeApiService.summary). */
+const SUMMARY_SORTS = new Set(['total', 'tipo']);
+
+function knownSort(sort: string | null): string {
+  return sort && sort in SORTS ? sort : '';
+}
+
+/**
+ * The list in the chosen order: by name; by stat total, highest first; or by primary type
+ * (its Portuguese name), then number. Species missing from the summary go last.
+ */
+function sortList(list: PokemonListItem[], sort: string, summary: Map<number, PokemonSummary> | undefined): PokemonListItem[] {
+  const id = (entry: PokemonListItem) => idFromUrl(entry.url);
+  const byNumber = (a: PokemonListItem, b: PokemonListItem) => id(a) - id(b);
+  switch (sort) {
+    case 'nome':
+      return [...list].sort((a, b) => a.name.localeCompare(b.name));
+    case 'total': {
+      const total = (entry: PokemonListItem) => summary?.get(id(entry))?.total ?? -1;
+      return [...list].sort((a, b) => total(b) - total(a) || byNumber(a, b));
+    }
+    case 'tipo': {
+      const type = (entry: PokemonListItem) => {
+        const name = summary?.get(id(entry))?.types[0];
+        return name ? (TYPE_NAMES[name] ?? name) : '\uffff';
+      };
+      return [...list].sort((a, b) => type(a).localeCompare(type(b), 'pt-BR') || byNumber(a, b));
+    }
+    default:
+      return list;
+  }
 }
 
 /** Most look-alike names suggested when a search has no exact match. */
@@ -119,6 +160,12 @@ export class PokeListComponent {
     this.route.queryParamMap.pipe(map((params) => knownType(params.get('tipo')))),
     { initialValue: knownType(this.route.snapshot.queryParamMap.get('tipo')) },
   );
+  /** List order from `?ordem=` (see SORTS); `''` for the Pokédex order. */
+  protected readonly sort = toSignal(
+    this.route.queryParamMap.pipe(map((params) => knownSort(params.get('ordem')))),
+    { initialValue: knownSort(this.route.snapshot.queryParamMap.get('ordem')) },
+  );
+  protected readonly sorts = Object.entries(SORTS);
   protected readonly types = Object.keys(TYPE_NAMES);
   protected readonly pageSize = PAGE_SIZE;
   protected readonly priorityCards = PRIORITY_CARDS;
@@ -128,7 +175,7 @@ export class PokeListComponent {
    * reloading) shows the same cards and the router can restore the scroll position.
    */
   protected readonly limit = linkedSignal<string, number>({
-    source: () => `${this.query()}|${this.type()}`,
+    source: () => `${this.query()}|${this.type()}|${this.sort()}`,
     computation: (_, previous) => (previous ? PAGE_SIZE : this.restoredLimit()),
   });
   protected readonly skeletons = Array.from({ length: SKELETON_CARDS }, (_, i) => i);
@@ -155,7 +202,15 @@ export class PokeListComponent {
     stream: ({ params: type }) => this.pokeApiService.typeMembers(type).pipe(map((ids) => new Set(ids))),
   });
 
-  protected readonly typeError = computed(() => !!this.type() && !!this.typeMembers.error());
+  /** Stat totals and types, loaded only for the orders that need them. */
+  private readonly summary = rxResource({
+    params: () => (SUMMARY_SORTS.has(this.sort()) ? this.sort() : undefined),
+    stream: () => this.pokeApiService.summary(),
+  });
+
+  protected readonly typeError = computed(
+    () => (!!this.type() && !!this.typeMembers.error()) || (SUMMARY_SORTS.has(this.sort()) && !!this.summary.error()),
+  );
 
   /** Every Pokémon matching the search and type — the whole index, not just the rendered cards. */
   private readonly matches = computed(() => {
@@ -179,7 +234,17 @@ export class PokeListComponent {
       : { list: lookAlikes(index, this.query()), approximate: true };
   });
 
-  protected readonly results = computed(() => this.matches()?.list);
+  /** Matches in the chosen order; look-alike names keep theirs (closest first). */
+  protected readonly results = computed(() => {
+    const matches = this.matches();
+    if (!matches || matches.approximate || !this.sort()) {
+      return matches?.list;
+    }
+    if (SUMMARY_SORTS.has(this.sort()) && !this.summary.hasValue()) {
+      return undefined;
+    }
+    return sortList(matches.list, this.sort(), this.summary.value());
+  });
   /** The results are look-alike names, since nothing matched the search exactly. */
   protected readonly approximate = computed(() => this.matches()?.approximate ?? false);
 
@@ -204,6 +269,16 @@ export class PokeListComponent {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { tipo: type || null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  /** Changes the order (kept in the URL); `''` goes back to the Pokédex order. */
+  setSort(sort: string): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { ordem: knownSort(sort) || null },
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
@@ -237,6 +312,7 @@ export class PokeListComponent {
     this.reload$.next();
     if (this.typeError()) {
       this.typeMembers.reload();
+      this.summary.reload();
     }
   }
 }

@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build-github": "ng build --configuration production,github-pages && node scripts/github-pages.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "data": "node scripts/pokemon-summary.mjs"
   },
   "private": true,
   "dependencies": {

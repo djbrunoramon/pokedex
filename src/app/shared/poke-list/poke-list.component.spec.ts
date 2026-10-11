@@ -32,6 +32,14 @@ class FakePokeApiService {
     return this.typeResponse(type);
   }
 
+  /** Stat totals grow with the id; ids 1–3 are grass, the rest fire. */
+  summaryResponse: () => Observable<Map<number, { total: number; types: string[] }>> = () =>
+    of(new Map(Array.from({ length: 60 }, (_, i) => [i + 1, { total: 100 + i, types: [i < 3 ? 'grass' : 'fire'] }])));
+
+  summary() {
+    return this.summaryResponse();
+  }
+
   getPokemon(id: number): Observable<Pokemon> {
     return of({
       id,
@@ -281,6 +289,64 @@ describe('PokeListComponent', () => {
     await fixture.whenStable();
     expect(router.url).toBe('/?q=char');
     expect(el.querySelector('.filters [data-type="all"]')?.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('sorts by name, stat total or type from the order select, keeping it in ?ordem=', async () => {
+    const fixture = await render();
+    const router = TestBed.inject(Router);
+    const el: HTMLElement = fixture.nativeElement;
+    const select = el.querySelector<HTMLSelectElement>('.sort select')!;
+    const names = () => [...el.querySelectorAll('.card__name')].slice(0, 3).map((n) => n.textContent);
+    expect([...select.options].map((option) => option.textContent?.trim())).toEqual([
+      'Número', 'Nome (A–Z)', 'Total de estatísticas', 'Tipo',
+    ]);
+
+    select.value = 'nome';
+    select.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+    expect(router.url).toBe('/?ordem=nome');
+    expect(names()).toEqual(['bulbasaur', 'charmander', 'ivysaur']);
+
+    select.value = 'total';
+    select.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+    expect(names()).toEqual(['poke-60', 'poke-59', 'poke-58']);
+
+    select.value = 'tipo'; // Fogo before Planta
+    select.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+    expect(names()).toEqual(['charmander', 'poke-5', 'poke-6']);
+
+    select.value = '';
+    select.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+    expect(router.url).toBe('/');
+    expect(names()).toEqual(['bulbasaur', 'ivysaur', 'venusaur']);
+  });
+
+  it('shows the loading state while the stat totals load, and an error with retry if they fail', async () => {
+    const pending = new Subject<Map<number, { total: number; types: string[] }>>();
+    api.summaryResponse = () => pending;
+    await TestBed.inject(Router).navigateByUrl('/?ordem=total');
+    const fixture = TestBed.createComponent(PokeListComponent);
+    fixture.detectChanges(); // whenStable() would wait for the pending file
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('[role="status"]')?.textContent).toContain('Carregando');
+
+    pending.error(new Error('offline'));
+    await fixture.whenStable();
+    expect(el.querySelector('[role="alert"]')).not.toBeNull();
+
+    api.summaryResponse = () => of(new Map([[2, { total: 999, types: ['fire'] }]]));
+    el.querySelector<HTMLButtonElement>('[role="alert"] button')!.click();
+    await fixture.whenStable();
+    expect(el.querySelector('.card__name')?.textContent).toBe('ivysaur');
+  });
+
+  it('keeps look-alike suggestions closest first whatever the order', async () => {
+    await TestBed.inject(Router).navigateByUrl('/?ordem=nome&q=venusaurr');
+    const fixture = await render();
+    expect(fixture.nativeElement.querySelector('.card__name')?.textContent).toBe('venusaur');
   });
 
   it('ignores an unknown ?tipo=', async () => {

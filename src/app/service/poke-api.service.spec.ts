@@ -157,6 +157,16 @@ describe('PokeApiService', () => {
     expect(first).toEqual(chain);
   });
 
+  it('reads the stat totals and types file once, as a map by Pokédex number', () => {
+    let summary: Map<number, { total: number; types: string[] }> | undefined;
+    service.summary().subscribe((value) => (summary = value));
+    service.summary().subscribe();
+
+    http.expectOne('assets/data/pokemon-summary.json').flush({ '1': [318, 'grass', 'poison'], '4': [309, 'fire'] });
+    expect(summary?.get(1)).toEqual({ total: 318, types: ['grass', 'poison'] });
+    expect(summary?.get(4)).toEqual({ total: 309, types: ['fire'] });
+  });
+
   it('trims a species to its name, first name and latest English texts', () => {
     let species: PokemonSpecies | undefined;
     service.getPokemonWithSpecies('25').subscribe(([, value]) => (species = value));

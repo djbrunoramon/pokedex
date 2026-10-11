@@ -15,6 +15,18 @@
   }
 </div>
 
+<!--Order-->
+<div class="bar">
+  <label class="sort">
+    Ordenar por
+    <select #order (change)="setSort(order.value)">
+      @for (option of sorts; track option[0]) {
+        <option [value]="option[0]" [selected]="sort() === option[0]">{{ option[1] }}</option>
+      }
+    </select>
+  </label>
+</div>
+
 @if (apiError() || typeError()) {
   <section class="state" role="alert">
     <img src="assets/error.png" alt="" width="593" height="247">

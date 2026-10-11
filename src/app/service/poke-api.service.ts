@@ -9,6 +9,8 @@ import {
   PokemonListItem,
   PokemonListResponse,
   PokemonSpecies,
+  PokemonSummary,
+  PokemonSummaryFile,
   PokemonTypeResponse,
 } from '../models/pokeapi.model';
 
@@ -74,6 +76,7 @@ export class PokeApiService {
   private readonly typeCache = new Map<string, Observable<number[]>>();
   private readonly evolutionCache = new Map<string, Observable<EvolutionChain>>();
   private index$?: Observable<PokemonListItem[]>;
+  private summary$?: Observable<Map<number, PokemonSummary>>;
 
   /**
    * The full species index (name + url), fetched once and shared. A failed request is
@@ -126,6 +129,22 @@ export class PokeApiService {
       this.typeCache.set(type, ids$);
     }
     return ids$;
+  }
+
+  /**
+   * Stat total and types of every species, from a file shipped with the app (the PokéAPI
+   * would need one request per Pokémon); fetched once, on first use.
+   */
+  summary(): Observable<Map<number, PokemonSummary>> {
+    this.summary$ ??= this.http.get<PokemonSummaryFile>('assets/data/pokemon-summary.json').pipe(
+      map(
+        (file) =>
+          new Map(Object.entries(file).map(([id, [total, ...types]]): [number, PokemonSummary] => [Number(id), { total, types }])),
+      ),
+      tap({ error: () => (this.summary$ = undefined) }),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+    return this.summary$;
   }
 
   /** An evolution chain (by the url a species points to), fetched once and shared. */
