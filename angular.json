@@ -29,6 +29,7 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
+              "src/manifest.webmanifest",
               "src/assets"
             ],
             "styles": [
@@ -42,6 +43,9 @@
               "includePaths": [
                 "."
               ]
+            },
+            "define": {
+              "PWA_ENABLED": "true"
             }
           },
           "configurations": {
@@ -58,7 +62,8 @@
                   "maximumError": "4kb"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
             },
             "github-pages": {
               "outputPath": {
@@ -66,7 +71,11 @@
                 "browser": ""
               },
               "baseHref": "/pokedex/",
-              "server": false
+              "server": false,
+              "serviceWorker": false,
+              "define": {
+                "PWA_ENABLED": "false"
+              }
             },
             "development": {
               "optimization": false,
@@ -80,6 +89,7 @@
               "extractLicenses": false,
               "assets": [
                 "src/favicon.ico",
+                "src/manifest.webmanifest",
                 "src/assets"
               ],
               "server": false
