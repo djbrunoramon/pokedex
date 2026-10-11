@@ -23,6 +23,7 @@ const CHARIZARD: Pokemon = {
   ],
   types: [{ type: { name: 'fire' } }, { type: { name: 'flying' } }],
   abilities: [],
+  cries: { latest: null, legacy: null },
 };
 
 const SPECIES: PokemonSpecies = {

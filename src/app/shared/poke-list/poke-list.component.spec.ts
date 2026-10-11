@@ -49,6 +49,7 @@ class FakePokeApiService {
       stats: [],
       types: [{ type: { name: 'normal' } }],
       abilities: [],
+      cries: { latest: null, legacy: null },
       sprites: {
         front_default: null,
         other: { dream_world: { front_default: `${id}.svg` }, 'official-artwork': { front_default: null } },

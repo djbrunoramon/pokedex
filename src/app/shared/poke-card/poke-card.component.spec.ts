@@ -15,6 +15,7 @@ const PIKACHU: Pokemon = {
   stats: [],
   types: [{ type: { name: 'electric' } }],
   abilities: [],
+  cries: { latest: null, legacy: null },
   sprites: {
     front_default: 'pixel.png',
     other: { dream_world: { front_default: null }, 'official-artwork': { front_default: 'art.png' } },

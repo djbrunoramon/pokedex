@@ -29,7 +29,7 @@ export function artworkUrl(id: number): string {
 }
 
 /** Keeps only the fields of a `/pokemon/:id` response that the app reads. */
-function slim({ id, name, height, weight, sprites, stats, types, abilities }: Pokemon): Pokemon {
+function slim({ id, name, height, weight, sprites, stats, types, abilities, cries }: Pokemon): Pokemon {
   return {
     id,
     name,
@@ -45,6 +45,7 @@ function slim({ id, name, height, weight, sprites, stats, types, abilities }: Po
     stats: stats.map(({ base_stat, stat }) => ({ base_stat, stat: { name: stat.name } })),
     types: types.map(({ type }) => ({ type: { name: type.name } })),
     abilities: abilities.map(({ ability, is_hidden }) => ({ ability: { name: ability.name }, is_hidden })),
+    cries: { latest: cries?.latest ?? null, legacy: cries?.legacy ?? null },
   };
 }
 

@@ -18,6 +18,7 @@ function pokemon(id: number, name: string, values: number[], type = 'normal'): P
     stats: STATS.map((stat, i) => ({ base_stat: values[i], stat: { name: stat } })),
     types: [{ type: { name: type } }],
     abilities: [],
+    cries: { latest: null, legacy: null },
   };
 }
 

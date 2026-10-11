@@ -23,6 +23,8 @@ export interface Pokemon {
   stats: PokemonStat[];
   types: PokemonTypeSlot[];
   abilities: PokemonAbilitySlot[];
+  /** Cry recordings (Ogg Vorbis): `latest` from recent games, `legacy` from the originals. */
+  cries: { latest: string | null; legacy: string | null };
 }
 
 export interface PokemonAbilitySlot {

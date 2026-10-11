@@ -31,6 +31,7 @@ const RAW_PIKACHU = {
     { slot: 1, is_hidden: false, ability: { name: 'static', url: 'z' } },
     { slot: 3, is_hidden: true, ability: { name: 'lightning-rod', url: 'w' } },
   ],
+  cries: { latest: 'latest/25.ogg', legacy: 'legacy/25.ogg' },
 };
 
 describe('PokeApiService', () => {
@@ -96,6 +97,7 @@ describe('PokeApiService', () => {
         { is_hidden: false, ability: { name: 'static' } },
         { is_hidden: true, ability: { name: 'lightning-rod' } },
       ],
+      cries: { latest: 'latest/25.ogg', legacy: 'legacy/25.ogg' },
     });
 
     service.getPokemon(25).subscribe();

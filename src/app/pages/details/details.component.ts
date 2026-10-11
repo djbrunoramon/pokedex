@@ -15,6 +15,7 @@ import { PokeEvolutionComponent } from '../../shared/poke-evolution/poke-evoluti
 import { PokeStatsComponent } from '../../shared/poke-stats/poke-stats.component';
 import { PokeFavoriteComponent } from '../../shared/poke-favorite/poke-favorite.component';
 import { PokeShareComponent } from '../../shared/poke-share/poke-share.component';
+import { PokeCryComponent } from '../../shared/poke-cry/poke-cry.component';
 
 interface DetailsViewModel {
   pokemon: Pokemon | null;
@@ -28,7 +29,7 @@ const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
 
 @Component({
   selector: 'app-details',
-  imports: [RouterLink, DexNumberPipe, SpritePipe, TypeNamePipe, PokeAboutComponent, PokeEvolutionComponent, PokeStatsComponent, PokeFavoriteComponent, PokeShareComponent],
+  imports: [RouterLink, DexNumberPipe, SpritePipe, TypeNamePipe, PokeAboutComponent, PokeEvolutionComponent, PokeStatsComponent, PokeFavoriteComponent, PokeShareComponent, PokeCryComponent],
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

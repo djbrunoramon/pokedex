@@ -59,6 +59,7 @@
           <a class="btn btn__ghost btn__small" routerLink="/comparar" [queryParams]="{ ids: pokemon.id }">
             <span aria-hidden="true">⇄</span> Comparar
           </a>
+          <poke-cry [url]="pokemon.cries.latest ?? pokemon.cries.legacy" [name]="name()"></poke-cry>
           <poke-share [title]="name() + ' | Pokédex'" [text]="shareText()" [path]="'/details/' + pokemon.id"></poke-share>
         </div>
       </section>
