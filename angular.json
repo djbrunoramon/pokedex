@@ -130,7 +130,10 @@
               "text-summary"
             ],
             "buildTarget": ":build:testing",
-            "runner": "vitest"
+            "runner": "vitest",
+            "setupFiles": [
+              "src/test-setup.ts"
+            ]
           }
         }
       }
