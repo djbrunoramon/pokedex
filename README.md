@@ -27,7 +27,7 @@
 - **Polished, accessible UI** — cards and pages coloured by type, an animated starry sky, keyboard focus styles, screen-reader labels and announcements, a back-to-top button, and `prefers-reduced-motion` support.
 - **Lean networking** — details, types and evolution chains are cached, requests nobody waits for are cancelled, and the search is debounced.
 
-> The PokéAPI has no Portuguese texts, so the category, description and ability names are shown in English (marked `lang="en"`). Types and stats are translated by the app.
+> The PokéAPI has no Portuguese texts, so the category, description and ability names are shown in English (marked `lang="en"`). Types and stats are translated by the app. See [Known limitations](#known-limitations).
 
 ## Tech stack
 
@@ -135,6 +135,10 @@ git add docs && git commit -m "chore: deploy to GitHub Pages" && git push
 ```
 
 The script also copies `index.html` to `404.html`, so deep links such as `/pokedex/details/25` (which GitHub Pages answers with `404.html`) still boot the app, and adds `.nojekyll`.
+
+## Known limitations
+
+- **No Portuguese Pokédex texts (by design, for now).** The PokéAPI has no `pt`/`pt-BR` entries for species descriptions, categories (genera) or ability names — checked on 2026-10-11, its texts come in `de`, `en`, `es`, `es-419`, `fr`, `it`, `ja`, `ja-hrkt`, `ko`, `zh-hans` and `zh-hant`. The app shows them in English rather than machine-translating them; revisit if the PokéAPI adds Portuguese.
 
 ## Credits
 
