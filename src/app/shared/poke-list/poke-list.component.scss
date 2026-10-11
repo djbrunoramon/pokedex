@@ -34,7 +34,8 @@
     .type-chip {
       flex: none;
       padding-block: rem-calc(6);
-      opacity: 0.7;
+      // Unpressed types recede, but their text keeps 4.5:1 contrast (Sombrio, Dragão…)
+      opacity: 0.85;
       cursor: pointer;
 
       &:hover,

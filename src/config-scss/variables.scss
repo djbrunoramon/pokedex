@@ -21,6 +21,8 @@
   --page-bg: var(--primary-color);
   --page-bg-deep: var(--primary-color-dark);
   --page-glow: 0.18;
+  // Brand pink used as text on the page (large headings, links)
+  --accent-text: var(--secondary-color);
   --search-bg: rgba(38, 40, 53, 0.88);
 
   // Typography
@@ -52,6 +54,7 @@
   --page-bg: #eef0f7;
   --page-bg-deep: #e3e7f2;
   --page-glow: 0.1;
+  --accent-text: var(--secondary-color-strong);
   --search-bg: rgba(255, 255, 255, 0.92);
   --shadow-sm: 0 1px 3px rgba(15, 16, 30, 0.1);
   color-scheme: light;

@@ -24,7 +24,7 @@
       box-shadow var(--duration) var(--ease-out);
 
     &:focus-within{
-      border-color: var(--secondary-color);
+      border-color: var(--accent-text);
       box-shadow: 0 0 0 4px rgba(255, 84, 115, 0.25);
     }
 

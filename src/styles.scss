@@ -39,8 +39,32 @@ app-root{
 
 main{
   flex: 1;
+
+  // Focused by the skip link and on page changes, never by the user
+  &:focus{
+    outline: none;
+  }
+
   width: 100%;
   max-width: var(--container);
   margin: 0 auto;
   padding: rem-calc(40) var(--gutter) rem-calc(48);
+}
+
+// "Pular para o conteúdo": first stop of the keyboard, visible only when focused
+.skip-link{
+  position: absolute;
+  top: rem-calc(12);
+  left: rem-calc(12);
+  z-index: 100;
+  padding: rem-calc(10) rem-calc(18);
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  color: var(--white);
+  background: var(--secondary-color-strong);
+  translate: 0 -200%;
+
+  &:focus{
+    translate: none;
+  }
 }
