@@ -1,0 +1,16 @@
+@use 'src/config-scss/rem-calc' as *;
+
+:host {
+  position: relative;
+  display: inline-flex;
+
+  .share__status {
+    position: absolute;
+    top: calc(100% + #{rem-calc(6)});
+    left: 50%;
+    translate: -50% 0;
+    font-size: rem-calc(13);
+    white-space: nowrap;
+    color: var(--text-on-dark-muted);
+  }
+}

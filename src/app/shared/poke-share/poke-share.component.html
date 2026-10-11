@@ -1,0 +1,7 @@
+<button type="button" class="btn btn__ghost btn__small" (click)="share()">
+  <span aria-hidden="true">↗</span> Compartilhar
+</button>
+<span class="visually-hidden" role="status">{{ status() }}</span>
+@if (status()) {
+  <span class="share__status" aria-hidden="true">{{ status() }}</span>
+}

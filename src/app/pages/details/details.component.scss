@@ -64,7 +64,11 @@
       right: rem-calc(20);
     }
 
-    &__compare {
+    &__actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: rem-calc(8);
       margin-top: rem-calc(20);
     }
 

@@ -14,6 +14,7 @@ import { PokeAboutComponent } from '../../shared/poke-about/poke-about.component
 import { PokeEvolutionComponent } from '../../shared/poke-evolution/poke-evolution.component';
 import { PokeStatsComponent } from '../../shared/poke-stats/poke-stats.component';
 import { PokeFavoriteComponent } from '../../shared/poke-favorite/poke-favorite.component';
+import { PokeShareComponent } from '../../shared/poke-share/poke-share.component';
 
 interface DetailsViewModel {
   pokemon: Pokemon | null;
@@ -27,7 +28,7 @@ const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
 
 @Component({
   selector: 'app-details',
-  imports: [RouterLink, DexNumberPipe, SpritePipe, TypeNamePipe, PokeAboutComponent, PokeEvolutionComponent, PokeStatsComponent, PokeFavoriteComponent],
+  imports: [RouterLink, DexNumberPipe, SpritePipe, TypeNamePipe, PokeAboutComponent, PokeEvolutionComponent, PokeStatsComponent, PokeFavoriteComponent, PokeShareComponent],
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -101,6 +102,12 @@ export class DetailsComponent {
    */
   protected readonly name = computed(() => this.vm().species?.name ?? this.vm().pokemon?.name ?? '');
 
+  /** Text shared along with the page's link. */
+  protected readonly shareText = computed(() => {
+    const pokemon = this.vm().pokemon;
+    return pokemon ? summary(capitalize(this.name()), pokemon) : '';
+  });
+
   protected readonly primaryType = computed(
     () => this.vm().pokemon?.types[0]?.type.name ?? 'normal',
   );
@@ -147,10 +154,9 @@ export class DetailsComponent {
   /** Title and link preview of this Pokémon's page: `Pikachu (#025): Pokémon do tipo Elétrico…`. */
   private describePage(pokemon: Pokemon, species: PokemonSpecies): void {
     const name = capitalize(species.name);
-    const types = pokemon.types.map(({ type }) => TYPE_NAMES[type.name] ?? type.name).join(' e ');
     this.seo.setPage({
       title: `${name} | Pokédex`,
-      description: `${name} (${new DexNumberPipe().transform(pokemon.id)}): Pokémon do tipo ${types}. Veja estatísticas base, habilidades e evoluções na Pokédex.`,
+      description: `${summary(name, pokemon)} Veja estatísticas base, habilidades e evoluções na Pokédex.`,
       path: `/details/${pokemon.id}`,
       image: artworkUrl(pokemon.id),
     });
@@ -159,6 +165,12 @@ export class DetailsComponent {
   private openedFromList(): boolean {
     return !!(this.location.getState() as { fromList?: boolean } | null)?.fromList;
   }
+}
+
+/** `Pikachu (#025): Pokémon do tipo Elétrico.` */
+function summary(name: string, pokemon: Pokemon): string {
+  const types = pokemon.types.map(({ type }) => TYPE_NAMES[type.name] ?? type.name).join(' e ');
+  return `${name} (${new DexNumberPipe().transform(pokemon.id)}): Pokémon do tipo ${types}.`;
 }
 
 function capitalize(value: string): string {

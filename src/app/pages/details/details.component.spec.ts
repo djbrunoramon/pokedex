@@ -128,6 +128,15 @@ describe('DetailsComponent', () => {
     expect(el.querySelector('poke-evolution')?.textContent).toContain('Sem dados de evolução');
   });
 
+  it('offers to compare and to share the Pokémon', () => {
+    const fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('.hero__actions a')?.getAttribute('href')).toBe('/comparar?ids=6');
+    expect(el.querySelector('poke-share button')?.textContent).toContain('Compartilhar');
+  });
+
   it('shows an error state with a way back to the list', () => {
     api.response = () => throwError(() => new Error('404'));
 
