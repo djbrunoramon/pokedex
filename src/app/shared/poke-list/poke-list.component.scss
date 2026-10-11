@@ -16,6 +16,19 @@
       margin-inline: calc(-1 * var(--gutter));
       padding: rem-calc(2) var(--gutter);
       scrollbar-width: none;
+
+      // Fade the side(s) with more types to scroll to
+      --fade-left: #000;
+      --fade-right: #000;
+      mask-image: linear-gradient(to right, var(--fade-left), #000 12%, #000 88%, var(--fade-right));
+
+      &--more-left {
+        --fade-left: transparent;
+      }
+
+      &--more-right {
+        --fade-right: transparent;
+      }
     }
 
     .type-chip {

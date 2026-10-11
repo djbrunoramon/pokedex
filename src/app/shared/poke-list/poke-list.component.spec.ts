@@ -350,6 +350,28 @@ describe('PokeListComponent', () => {
     expect(fixture.nativeElement.querySelector('.card__name')?.textContent).toBe('venusaur');
   });
 
+  it('fades the side of the type row that has more types to scroll to', async () => {
+    const fixture = await render();
+    const filters: HTMLElement = fixture.nativeElement.querySelector('.filters');
+    const layout = (scrollLeft: number) => {
+      Object.defineProperties(filters, {
+        scrollWidth: { value: 1000, configurable: true },
+        clientWidth: { value: 400, configurable: true },
+        scrollLeft: { value: scrollLeft, configurable: true },
+      });
+      filters.dispatchEvent(new Event('scroll'));
+      fixture.detectChanges();
+    };
+
+    layout(0);
+    expect(filters.className).toBe('filters filters--more-right');
+    layout(300);
+    expect(filters.classList).toContain('filters--more-left');
+    expect(filters.classList).toContain('filters--more-right');
+    layout(600);
+    expect(filters.className).toBe('filters filters--more-left');
+  });
+
   it('ignores an unknown ?tipo=', async () => {
     await TestBed.inject(Router).navigateByUrl('/?tipo=banana');
     const fixture = await render();

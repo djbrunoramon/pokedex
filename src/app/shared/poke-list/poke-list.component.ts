@@ -1,10 +1,13 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
   linkedSignal,
   signal,
+  viewChild,
 } from '@angular/core';
 import { Location } from '@angular/common';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
@@ -135,6 +138,7 @@ function editDistance(a: string, b: string): number {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(window:scroll)': 'onScroll()',
+    '(window:resize)': 'updateFilterEdges()',
   },
 })
 export class PokeListComponent {
@@ -145,6 +149,13 @@ export class PokeListComponent {
   private readonly reload$ = new Subject<void>();
 
   protected readonly apiError = signal(false);
+  private readonly filters = viewChild.required<ElementRef<HTMLElement>>('filters');
+  /**
+   * Whether more type buttons are hidden to the left / right of the filter row (a single
+   * scrolling row on phones); each side then fades out to show there is more.
+   */
+  protected readonly moreFiltersLeft = signal(false);
+  protected readonly moreFiltersRight = signal(false);
   /** Shown once the user has scrolled about a screen and a half down the list. */
   protected readonly showBackToTop = signal(false);
   /**
@@ -211,6 +222,10 @@ export class PokeListComponent {
   protected readonly typeError = computed(
     () => (!!this.type() && !!this.typeMembers.error()) || (SUMMARY_SORTS.has(this.sort()) && !!this.summary.error()),
   );
+
+  constructor() {
+    afterNextRender(() => this.updateFilterEdges());
+  }
 
   /** Every Pokémon matching the search and type — the whole index, not just the rendered cards. */
   private readonly matches = computed(() => {
@@ -296,6 +311,12 @@ export class PokeListComponent {
   private restoredLimit(): number {
     const limit = (this.location.getState() as ListHistoryState | null)?.listLimit;
     return Number.isInteger(limit) && limit! > PAGE_SIZE ? limit! : PAGE_SIZE;
+  }
+
+  protected updateFilterEdges(): void {
+    const { scrollLeft, scrollWidth, clientWidth } = this.filters().nativeElement;
+    this.moreFiltersLeft.set(scrollLeft > 1);
+    this.moreFiltersRight.set(scrollLeft + clientWidth < scrollWidth - 1);
   }
 
   protected onScroll(): void {

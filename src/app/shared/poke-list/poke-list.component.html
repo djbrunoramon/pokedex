@@ -2,7 +2,8 @@
 <poke-search [value]="query()" (term)="onSearch($event)"></poke-search>
 
 <!--Type filter-->
-<div class="filters" role="group" aria-label="Filtrar por tipo">
+<div class="filters" role="group" aria-label="Filtrar por tipo" #filters (scroll)="updateFilterEdges()"
+     [class.filters--more-left]="moreFiltersLeft()" [class.filters--more-right]="moreFiltersRight()">
   <button type="button" class="type-chip" data-type="all" [attr.aria-pressed]="!type()" (click)="setType('')">Todos</button>
   @for (name of types; track name) {
     <button
