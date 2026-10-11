@@ -28,6 +28,13 @@
     gap: rem-calc(8);
   }
 
+  // Keyboard help: pointless on touch screens
+  .keys {
+    @media (hover: none) {
+      display: none;
+    }
+  }
+
   .active {
     border-color: var(--secondary-color);
   }

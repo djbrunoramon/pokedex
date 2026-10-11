@@ -1,0 +1,54 @@
+@use 'src/config-scss/rem-calc' as *;
+
+:host {
+  .shortcuts {
+    width: min(100% - 2rem, #{rem-calc(440)});
+    margin: auto;
+    padding: rem-calc(28);
+    border: 0;
+    border-radius: var(--radius-lg);
+    color: var(--text);
+    background: var(--surface);
+    box-shadow: var(--shadow-lg);
+
+    &::backdrop {
+      background: rgba(15, 16, 30, 0.6);
+      backdrop-filter: blur(2px);
+    }
+
+    h2 {
+      margin-bottom: rem-calc(16);
+      font-size: rem-calc(22);
+      font-weight: 800;
+    }
+
+    &__row {
+      display: grid;
+      grid-template-columns: rem-calc(80) 1fr;
+      align-items: center;
+      gap: rem-calc(12);
+      padding: rem-calc(8) 0;
+      border-bottom: 1px solid var(--surface-muted);
+    }
+
+    small {
+      color: var(--text-muted);
+    }
+
+    kbd {
+      display: inline-block;
+      min-width: rem-calc(28);
+      margin-right: rem-calc(4);
+      padding: rem-calc(2) rem-calc(8);
+      border: 1px solid var(--surface-muted);
+      border-bottom-width: 3px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      text-align: center;
+    }
+
+    button {
+      margin-top: rem-calc(20);
+    }
+  }
+}

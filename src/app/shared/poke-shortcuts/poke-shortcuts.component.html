@@ -1,0 +1,17 @@
+<!-- Keys pressed in the dialog stay there (← → would move the page behind it) -->
+<dialog #dialog class="shortcuts" aria-labelledby="shortcuts-title" (keydown)="$event.stopPropagation()">
+  <h2 id="shortcuts-title">Atalhos de teclado</h2>
+  <dl>
+    @for (shortcut of shortcuts; track shortcut.label) {
+      <div class="shortcuts__row">
+        <dt>
+          @for (key of shortcut.keys; track key) {
+            <kbd>{{ key }}</kbd>
+          }
+        </dt>
+        <dd>{{ shortcut.label }} <small>· {{ shortcut.where }}</small></dd>
+      </div>
+    }
+  </dl>
+  <button type="button" class="btn btn__secondary btn__small" (click)="close()">Fechar</button>
+</dialog>
