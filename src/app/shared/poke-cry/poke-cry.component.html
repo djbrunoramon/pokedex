@@ -1,7 +1,13 @@
 @if (supported() && url()) {
   <button type="button" class="btn btn__ghost btn__small" [attr.aria-label]="'Ouvir o som de ' + name()"
           [attr.aria-busy]="playing()" (click)="play()">
-    <span aria-hidden="true">{{ playing() ? '♪' : '🔊' }}</span> Ouvir
+    <span aria-hidden="true">{{ volume.muted() ? '🔇' : playing() ? '♪' : '🔊' }}</span> Ouvir
   </button>
+  <label class="volume">
+    <span>Volume</span>
+    <input #slider type="range" min="0" max="100" step="5" aria-label="Volume dos sons"
+           [value]="volume.percent()" [attr.aria-valuetext]="volume.muted() ? 'Sem som' : volume.percent() + '%'"
+           (input)="setVolume(slider.value)">
+  </label>
 }
 <span class="visually-hidden" role="status">{{ status() }}</span>

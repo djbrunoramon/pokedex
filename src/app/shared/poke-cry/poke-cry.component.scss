@@ -1,0 +1,22 @@
+@use 'src/config-scss/rem-calc' as *;
+
+:host {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: rem-calc(8);
+
+  .volume {
+    display: inline-flex;
+    align-items: center;
+    gap: rem-calc(6);
+    font-size: rem-calc(13);
+    color: var(--text-on-dark);
+
+    input {
+      width: rem-calc(96);
+      accent-color: var(--secondary-color);
+    }
+  }
+}
