@@ -29,6 +29,7 @@
 
         <p class="hero__number">{{ pokemon.id | dexNumber }}</p>
         <h1 class="hero__name">{{ name() }}</h1>
+        <poke-favorite class="hero__favorite" [id]="pokemon.id" [name]="name()"></poke-favorite>
 
         <ul class="hero__types">
           @for (slot of pokemon.types; track slot.type.name) {

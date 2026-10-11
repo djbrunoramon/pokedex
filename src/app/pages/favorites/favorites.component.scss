@@ -1,0 +1,13 @@
+@use 'src/config-scss/rem-calc' as *;
+
+:host {
+  .title {
+    font-size: clamp(#{rem-calc(28)}, 5vw, #{rem-calc(40)});
+    font-weight: 800;
+  }
+
+  .count {
+    margin: rem-calc(12) 0 rem-calc(20);
+    color: var(--text-on-dark-muted);
+  }
+}

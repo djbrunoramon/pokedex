@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { PokeFooterComponent } from './shared/poke-footer/poke-footer.component';
+import { PokeHeaderComponent } from './shared/poke-header/poke-header.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, PokeFooterComponent],
+  imports: [RouterOutlet, PokeHeaderComponent, PokeFooterComponent],
   template: `
     <div class="starfield" aria-hidden="true">
       <span class="stars stars--sm"></span>
@@ -13,6 +14,7 @@ import { PokeFooterComponent } from './shared/poke-footer/poke-footer.component'
       <span class="stars stars--lg"></span>
       <span class="shooting-star"></span>
     </div>
+    <poke-header></poke-header>
     <router-outlet></router-outlet>
     <poke-footer></poke-footer>
   `,

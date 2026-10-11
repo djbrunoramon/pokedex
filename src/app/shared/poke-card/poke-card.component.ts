@@ -7,10 +7,11 @@ import { idFromUrl, PokeApiService } from '../../service/poke-api.service';
 import { DexNumberPipe } from '../pipes/dex-number.pipe';
 import { SpritePipe } from '../pipes/sprite.pipe';
 import { TypeNamePipe } from '../pipes/type-name.pipe';
+import { PokeFavoriteComponent } from '../poke-favorite/poke-favorite.component';
 
 @Component({
   selector: 'poke-card',
-  imports: [RouterLink, DexNumberPipe, SpritePipe, TypeNamePipe],
+  imports: [RouterLink, DexNumberPipe, SpritePipe, TypeNamePipe, PokeFavoriteComponent],
   templateUrl: './poke-card.component.html',
   styleUrls: ['./poke-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

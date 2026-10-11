@@ -33,3 +33,7 @@
 } @else {
   <div class="placeholder skeleton" aria-hidden="true"></div>
 }
+
+@if (!detail.isLoading()) {
+  <poke-favorite class="card__favorite" [id]="id()" [name]="entry().name"></poke-favorite>
+}

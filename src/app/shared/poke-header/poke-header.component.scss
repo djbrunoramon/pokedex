@@ -1,0 +1,44 @@
+@use 'src/config-scss/rem-calc' as *;
+
+:host {
+  display: block;
+
+  .header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: rem-calc(12);
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: rem-calc(16) var(--gutter) 0;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: rem-calc(8);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: rem-calc(8);
+  }
+
+  .active {
+    border-color: var(--secondary-color);
+  }
+
+  .badge {
+    min-width: rem-calc(22);
+    padding: 0 rem-calc(6);
+    border-radius: var(--radius-pill);
+    font-size: rem-calc(13);
+    text-align: center;
+    color: var(--white);
+    background: var(--secondary-color-strong);
+  }
+}

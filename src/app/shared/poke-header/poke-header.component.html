@@ -1,0 +1,15 @@
+<header class="header">
+  <a routerLink="/" class="brand">
+    <img src="assets/icons/pokedex.svg" alt="" width="28" height="28">
+    Pokédex
+  </a>
+
+  <nav class="nav" aria-label="Principal">
+    <a routerLink="/favoritos" routerLinkActive="active" ariaCurrentWhenActive="page" class="btn btn__ghost btn__small">
+      <span aria-hidden="true">♥</span> Favoritos
+      @if (favorites.count()) {
+        <span class="badge">{{ favorites.count() }}</span>
+      }
+    </a>
+  </nav>
+</header>

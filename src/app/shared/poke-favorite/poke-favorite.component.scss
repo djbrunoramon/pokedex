@@ -1,0 +1,35 @@
+@use 'src/config-scss/rem-calc' as *;
+
+:host {
+  display: inline-block;
+
+  .favorite {
+    display: grid;
+    place-items: center;
+    width: rem-calc(40);
+    height: rem-calc(40);
+    border-radius: 50%;
+    color: var(--secondary-color-strong);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--duration) var(--ease-out);
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+  }
+
+  [aria-pressed='true'] path {
+    fill: currentColor;
+  }
+}

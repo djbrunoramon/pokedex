@@ -58,6 +58,12 @@
       white-space: nowrap;
     }
 
+    &__favorite {
+      position: absolute;
+      top: rem-calc(20);
+      right: rem-calc(20);
+    }
+
     &__number {
       font-weight: 600;
     }

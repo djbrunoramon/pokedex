@@ -26,9 +26,13 @@ test.describe('voltar do detalhe', () => {
     await page.getByRole('button', { name: 'Voltar', exact: true }).click();
 
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.locator(items)).toHaveCount(count);
+    // The same cards come back (infinite scroll may add a page below, as the restored
+    // position is near the end), at the same position, with the opened card on screen.
+    await expect.poll(() => page.locator(items).count()).toBeGreaterThanOrEqual(count);
     await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(scrollY - 50);
     expect(await page.evaluate(() => scrollY)).toBeLessThan(scrollY + 50);
+    await expect(page.locator(cards).nth(60)).toContainText(name);
+    await expect(page.locator(cards).nth(60)).toBeInViewport();
   });
 
   test('a busca e o filtro continuam ao voltar, mesmo depois de navegar entre vizinhos', async ({ page }) => {

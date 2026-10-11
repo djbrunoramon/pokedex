@@ -2,6 +2,31 @@
 
 :host {
   display: block;
+  position: relative;
+
+  // Outside the card's link (a button can't be inside one); lifts along with the card
+  .card__favorite {
+    position: absolute;
+    top: rem-calc(10);
+    right: rem-calc(10);
+    transition: transform var(--duration) var(--ease-out);
+  }
+
+  // Hovering the heart (outside the link) keeps the card lifted too
+  &:hover .card,
+  .card:focus-visible {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+
+    .card__image {
+      transform: scale(1.08) rotate(-3deg);
+    }
+  }
+
+  &:hover .card__favorite,
+  .card:focus-visible + .card__favorite {
+    transform: translateY(-4px);
+  }
 
   .placeholder {
     height: 100%;
@@ -44,16 +69,6 @@
       border-radius: 50%;
       background: radial-gradient(circle, color-mix(in srgb, var(--type-color) 45%, transparent), transparent 70%);
       translate: 0 -50%;
-    }
-
-    &:hover,
-    &:focus-visible {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-lg);
-
-      .card__image {
-        transform: scale(1.08) rotate(-3deg);
-      }
     }
 
     &__info {

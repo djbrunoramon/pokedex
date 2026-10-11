@@ -41,26 +41,6 @@
     color: var(--text-on-dark-muted);
   }
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, rem-calc(280)), 1fr));
-    gap: rem-calc(16);
-
-    > li {
-      display: grid;
-      min-width: 0;
-    }
-
-    &--loading {
-      margin-top: rem-calc(60);
-    }
-
-    &__placeholder {
-      height: rem-calc(136);
-      border-radius: var(--radius-lg);
-    }
-  }
-
   .more {
     display: flex;
     margin: rem-calc(32) auto 0;
