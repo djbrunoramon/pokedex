@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build && node scripts/check-prerender.mjs",
+    "build": "ng build && node scripts/check-prerender.mjs && node scripts/seo-files.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build-github": "ng build --configuration production,github-pages && node scripts/github-pages.mjs",
