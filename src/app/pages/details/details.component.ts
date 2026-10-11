@@ -1,12 +1,12 @@
-import { Location } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { isPlatformServer, Location } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, PLATFORM_ID } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, map, of, startWith, switchMap, tap } from 'rxjs';
 
 import { PokeApiService } from '../../service/poke-api.service';
-import { Pokemon, PokemonSpecies } from '../../models/pokeapi.model';
+import { Pokemon, PokemonListItem, PokemonSpecies } from '../../models/pokeapi.model';
 import { DexNumberPipe } from '../../shared/pipes/dex-number.pipe';
 import { SpritePipe } from '../../shared/pipes/sprite.pipe';
 import { TypeNamePipe } from '../../shared/pipes/type-name.pipe';
@@ -56,24 +56,33 @@ export class DetailsComponent {
     { initialValue: EMPTY_VM },
   );
 
-  /** Number of species (the last Pokédex number); 0 until known. */
+  /**
+   * Number of species (the last Pokédex number); 0 until known. Not fetched while
+   * prerendering, so the page doesn't embed the whole index: the neighbour links appear
+   * once the browser has it.
+   */
   private readonly speciesCount = toSignal(
-    this.pokeApiService.index().pipe(
+    (isPlatformServer(inject(PLATFORM_ID)) ? of<PokemonListItem[]>([]) : this.pokeApiService.index()).pipe(
       map((index) => index.length),
       catchError(() => of(0)),
     ),
     { initialValue: 0 },
   );
 
+  /** Pokédex number in the URL — known before the Pokémon loads, so ←/→ work meanwhile. */
+  private readonly routeId = toSignal(this.route.paramMap.pipe(map((params) => Number(params.get('id')))), {
+    initialValue: NaN,
+  });
+
   /** Neighbouring Pokédex numbers, `null` at either end of the Pokédex. */
   protected readonly previousId = computed(() => {
-    const id = this.vm().pokemon?.id;
-    return id && id > 1 && id <= this.speciesCount() ? id - 1 : null;
+    const id = this.vm().pokemon?.id ?? this.routeId();
+    return Number.isInteger(id) && id > 1 && id <= this.speciesCount() ? id - 1 : null;
   });
 
   protected readonly nextId = computed(() => {
-    const id = this.vm().pokemon?.id;
-    return id && id < this.speciesCount() ? id + 1 : null;
+    const id = this.vm().pokemon?.id ?? this.routeId();
+    return Number.isInteger(id) && id >= 1 && id < this.speciesCount() ? id + 1 : null;
   });
 
   /**

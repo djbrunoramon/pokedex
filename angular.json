@@ -36,6 +36,8 @@
             ],
             "scripts": [],
             "browser": "src/main.ts",
+            "server": "src/main.server.ts",
+            "outputMode": "static",
             "stylePreprocessorOptions": {
               "includePaths": [
                 "."
@@ -63,7 +65,8 @@
                 "base": "docs",
                 "browser": ""
               },
-              "baseHref": "/pokedex/"
+              "baseHref": "/pokedex/",
+              "server": false
             },
             "development": {
               "optimization": false,
@@ -78,7 +81,8 @@
               "assets": [
                 "src/favicon.ico",
                 "src/assets"
-              ]
+              ],
+              "server": false
             }
           },
           "defaultConfiguration": "production"

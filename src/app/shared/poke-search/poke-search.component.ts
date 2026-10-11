@@ -2,7 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   effect,
+  DOCUMENT,
   ElementRef,
+  inject,
   input,
   signal,
   viewChild,
@@ -23,6 +25,7 @@ const DEBOUNCE_MS = 150;
   },
 })
 export class PokeSearchComponent {
+  private readonly document = inject(DOCUMENT);
   private readonly input$ = new Subject<string>();
   private readonly field = viewChild.required<ElementRef<HTMLInputElement>>('input');
 
@@ -39,7 +42,7 @@ export class PokeSearchComponent {
       const value = this.value();
       const field = this.field().nativeElement;
       // Never overwrite what the user is typing: while focused, the field is the source.
-      if (document.activeElement !== field && field.value.trim() !== value) {
+      if (this.document.activeElement !== field && field.value.trim() !== value) {
         field.value = value;
       }
       this.hasText.set(field.value !== '');

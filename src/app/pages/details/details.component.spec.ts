@@ -229,6 +229,16 @@ describe('DetailsComponent', () => {
     expect(navigate).toHaveBeenLastCalledWith(['/details', 5], { replaceUrl: true, state: { fromList: true } });
   });
 
+  it('takes the arrow keys while the Pokémon is still loading, from the :id in the URL', () => {
+    api.response = () => new Subject<[Pokemon, PokemonSpecies]>();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const fixture = TestBed.createComponent(DetailsComponent);
+    fixture.detectChanges();
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
+    expect(navigate).toHaveBeenLastCalledWith(['/details', 5], expect.anything());
+  });
+
   it('links each type to the list filtered by it', () => {
     const fixture = TestBed.createComponent(DetailsComponent);
     fixture.detectChanges();

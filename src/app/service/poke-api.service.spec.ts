@@ -1,9 +1,10 @@
+import { makeStateKey, TransferState } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { idFromUrl, PokeApiService } from './poke-api.service';
-import { PokemonListItem } from '../models/pokeapi.model';
+import { Pokemon, PokemonListItem, PokemonSpecies } from '../models/pokeapi.model';
 
 const API = 'https://pokeapi.co/api/v2';
 
@@ -154,5 +155,43 @@ describe('PokeApiService', () => {
 
     http.expectOne(url).flush(chain);
     expect(first).toEqual(chain);
+  });
+
+  it('trims a species to its name, first name and latest English texts', () => {
+    let species: PokemonSpecies | undefined;
+    service.getPokemonWithSpecies('25').subscribe(([, value]) => (species = value));
+    http.expectOne(`${API}/pokemon/25`).flush(RAW_PIKACHU);
+    http.expectOne(`${API}/pokemon-species/25`).flush({
+      name: 'pikachu',
+      names: [{ name: 'ピカチュウ', language: { name: 'ja-Hrkt' } }, { name: 'Pikachu', language: { name: 'fr' } }],
+      genera: [{ genus: 'Pokémon Souris', language: { name: 'fr' } }, { genus: 'Mouse Pokémon', language: { name: 'en' } }],
+      flavor_text_entries: [
+        { flavor_text: 'Old.', language: { name: 'en' } },
+        { flavor_text: 'Nouveau.', language: { name: 'fr' } },
+        { flavor_text: 'New.', language: { name: 'en' } },
+      ],
+      evolution_chain: { url: 'chain/10/' },
+      capture_rate: 190,
+    });
+
+    expect(species).toEqual({
+      name: 'pikachu',
+      names: [{ name: 'ピカチュウ', language: { name: 'ja-Hrkt' } }],
+      genera: [{ genus: 'Mouse Pokémon', language: { name: 'en' } }],
+      flavor_text_entries: [{ flavor_text: 'New.', language: { name: 'en' } }],
+      evolution_chain: { url: 'chain/10/' },
+    });
+  });
+
+  it('reads a response transferred by the prerendered page once, then uses the network', () => {
+    const transferState = TestBed.inject(TransferState);
+    const pikachu = { id: 25, name: 'pikachu' } as Pokemon;
+    transferState.set(makeStateKey<Pokemon>('pokemon-25'), pikachu);
+
+    let first: Pokemon | undefined;
+    service.getPokemon(25).subscribe((value) => (first = value));
+    expect(first).toEqual(pikachu);
+    expect(transferState.hasKey(makeStateKey('pokemon-25'))).toBe(false);
+    http.expectNone(`${API}/pokemon/25`);
   });
 });

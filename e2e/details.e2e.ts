@@ -34,6 +34,7 @@ test.describe('detalhe', () => {
 
     await page.keyboard.press('ArrowLeft');
     await expect(page).toHaveURL(/\/details\/25$/);
+    // Pressed again right away, before #25 has loaded: the URL's number is enough.
     await page.keyboard.press('ArrowLeft');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('arbok');
   });

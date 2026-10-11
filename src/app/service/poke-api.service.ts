@@ -1,6 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, makeStateKey, PLATFORM_ID, TransferState } from '@angular/core';
+import { isPlatformServer } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin, map, Observable, shareReplay, tap } from 'rxjs';
+import { forkJoin, map, Observable, of, shareReplay, tap } from 'rxjs';
 
 import {
   EvolutionChain,
@@ -45,11 +46,30 @@ function slim({ id, name, height, weight, sprites, stats, types, abilities }: Po
   };
 }
 
+/**
+ * Keeps only what the app reads of a `/pokemon-species/:id` response, which carries every
+ * language's texts: the name, the first localized name (the Japanese watermark), and the
+ * English category and latest English description.
+ */
+function slimSpecies({ name, names, genera, flavor_text_entries, evolution_chain }: PokemonSpecies): PokemonSpecies {
+  const english = <T extends { language: { name: string } }>(entries: T[]) =>
+    entries.filter((entry) => entry.language.name === 'en');
+  return {
+    name,
+    names: names.slice(0, 1),
+    genera: english(genera).slice(0, 1),
+    flavor_text_entries: english(flavor_text_entries).slice(-1),
+    evolution_chain,
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class PokeApiService {
   private readonly http = inject(HttpClient);
+  private readonly transferState = inject(TransferState);
+  private readonly isServer = isPlatformServer(inject(PLATFORM_ID));
   private readonly pokemonCache = new Map<string, Observable<Pokemon>>();
   private readonly typeCache = new Map<string, Observable<number[]>>();
   private readonly evolutionCache = new Map<string, Observable<EvolutionChain>>();
@@ -60,8 +80,10 @@ export class PokeApiService {
    * not cached, so a later call retries.
    */
   index(): Observable<PokemonListItem[]> {
-    this.index$ ??= this.http.get<PokemonListResponse>(INDEX_URL).pipe(
-      map((res) => res.results),
+    this.index$ ??= this.transferred(
+      'index',
+      this.http.get<PokemonListResponse>(INDEX_URL).pipe(map((res) => res.results)),
+    ).pipe(
       tap({ error: () => (this.index$ = undefined) }),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
@@ -77,8 +99,10 @@ export class PokeApiService {
     const key = String(id);
     let pokemon$ = this.pokemonCache.get(key);
     if (!pokemon$) {
-      pokemon$ = this.http.get<Pokemon>(`${API}/pokemon/${key}`).pipe(
-        map(slim),
+      pokemon$ = this.transferred(
+        `pokemon-${key}`,
+        this.http.get<Pokemon>(`${API}/pokemon/${key}`).pipe(map(slim)),
+      ).pipe(
         tap({ error: () => this.pokemonCache.delete(key) }),
         shareReplay({ bufferSize: 1, refCount: true }),
       );
@@ -108,7 +132,7 @@ export class PokeApiService {
   getEvolutionChain(url: string): Observable<EvolutionChain> {
     let chain$ = this.evolutionCache.get(url);
     if (!chain$) {
-      chain$ = this.http.get<EvolutionChain>(url).pipe(
+      chain$ = this.transferred(`evolution-${url}`, this.http.get<EvolutionChain>(url)).pipe(
         tap({ error: () => this.evolutionCache.delete(url) }),
         shareReplay({ bufferSize: 1, refCount: false }),
       );
@@ -120,7 +144,29 @@ export class PokeApiService {
   getPokemonWithSpecies(id: string): Observable<[Pokemon, PokemonSpecies]> {
     return forkJoin([
       this.getPokemon(id),
-      this.http.get<PokemonSpecies>(`${API}/pokemon-species/${id}`),
+      this.transferred(
+        `species-${id}`,
+        this.http.get<PokemonSpecies>(`${API}/pokemon-species/${id}`).pipe(map(slimSpecies)),
+      ),
     ]);
+  }
+
+  /**
+   * Hands a response from the prerendered page to the browser: the server stores it in the
+   * page, and the browser's first request for it reads it from there instead of the network
+   * — so hydration finds the same data and nothing flickers. Used only for trimmed
+   * responses, as each one is embedded in the HTML.
+   */
+  private transferred<T>(key: string, request: Observable<T>): Observable<T> {
+    const stateKey = makeStateKey<T>(key);
+    if (this.isServer) {
+      return request.pipe(tap((value) => this.transferState.set(stateKey, value)));
+    }
+    if (this.transferState.hasKey(stateKey)) {
+      const value = this.transferState.get(stateKey, null) as T;
+      this.transferState.remove(stateKey);
+      return of(value);
+    }
+    return request;
   }
 }
