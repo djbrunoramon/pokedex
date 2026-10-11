@@ -34,9 +34,11 @@
     <p>Não foi possível carregar os Pokémon. Verifique sua conexão e tente novamente.</p>
     <button type="button" class="btn btn__secondary" (click)="retry()">Tentar novamente</button>
   </section>
-} @else if (results(); as list) {
+} @else if (shown(); as list) {
   <p class="count" aria-live="polite">
-    @if (approximate() && list.length) {
+    @if (loading()) {
+      {{ loadingMessage() }}
+    } @else if (approximate() && list.length) {
       Nenhum resultado exato para “{{ query() }}”. Você quis dizer:
     } @else {
       {{ list.length }} {{ list.length === 1 ? 'Pokémon encontrado' : 'Pokémon encontrados' }}
@@ -46,8 +48,12 @@
     }
   </p>
 
+  @if (loading()) {
+    <div class="progress" aria-hidden="true"></div>
+  }
+
   @if (list.length) {
-    <ul class="grid">
+    <ul class="grid" [class.grid--stale]="loading()" [attr.aria-busy]="loading()">
       @for (entry of visible(); track entry.name) {
         <li class="fadeIn">
           <poke-card [entry]="entry" [priority]="$index < priorityCards"></poke-card>
@@ -68,7 +74,7 @@
         {{ hasMore() ? 'Carregar mais' : 'Todos os Pokémon foram carregados' }}
       </button>
     }
-  } @else {
+  } @else if (!loading()) {
     <section class="state">
       <img src="assets/pokemon.png" alt="" width="80" height="80">
       <p>Nenhum Pokémon{{ type() ? ' do tipo ' + (type() | typeName) : '' }} encontrado para “{{ query() }}”.</p>

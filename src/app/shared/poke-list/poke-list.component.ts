@@ -263,8 +263,29 @@ export class PokeListComponent {
   /** The results are look-alike names, since nothing matched the search exactly. */
   protected readonly approximate = computed(() => this.matches()?.approximate ?? false);
 
-  protected readonly visible = computed(() => this.results()?.slice(0, this.limit()) ?? []);
-  protected readonly hasMore = computed(() => (this.results()?.length ?? 0) > this.limit());
+  /**
+   * What the list shows: the results, or — while a new type or order loads — the previous
+   * ones, dimmed, so the page doesn't collapse into placeholders on every change.
+   */
+  protected readonly shown = linkedSignal<PokemonListItem[] | undefined, PokemonListItem[] | undefined>({
+    source: this.results,
+    computation: (results, previous) => results ?? previous?.value,
+  });
+
+  /** Results are being (re)computed: a type's members or the stat totals are loading. */
+  protected readonly loading = computed(() => this.results() === undefined);
+
+  protected readonly loadingMessage = computed(() => {
+    if (this.type() && !this.typeMembers.hasValue()) {
+      return `Carregando Pokémon do tipo ${TYPE_NAMES[this.type()]}…`;
+    }
+    return SUMMARY_SORTS.has(this.sort()) && !this.summary.hasValue()
+      ? 'Carregando estatísticas para ordenar…'
+      : 'Carregando Pokémon…';
+  });
+
+  protected readonly visible = computed(() => this.shown()?.slice(0, this.limit()) ?? []);
+  protected readonly hasMore = computed(() => !this.loading() && (this.shown()?.length ?? 0) > this.limit());
 
   onSearch(value: string): void {
     const q = value.trim();

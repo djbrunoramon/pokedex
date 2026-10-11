@@ -372,6 +372,32 @@ describe('PokeListComponent', () => {
     expect(filters.className).toBe('filters filters--more-left');
   });
 
+  it('keeps the previous cards, dimmed, while a new type loads, saying what is loading', async () => {
+    const fixture = await render();
+    const el: HTMLElement = fixture.nativeElement;
+    const pending = new Subject<number[]>();
+    api.typeResponse = () => pending;
+
+    el.querySelector<HTMLButtonElement>('.filters [data-type="fire"]')!.click();
+    await TestBed.inject(Router).navigateByUrl('/?tipo=fire');
+    fixture.detectChanges(); // whenStable() would wait for the pending type
+
+    const grid = el.querySelector('.grid')!;
+    expect(cards(fixture).length).toBe(24);
+    expect(grid.classList).toContain('grid--stale');
+    expect(grid.getAttribute('aria-busy')).toBe('true');
+    expect(el.querySelector('.progress')).not.toBeNull();
+    expect(el.querySelector('.count')?.textContent?.trim()).toBe('Carregando Pokémon do tipo Fogo…');
+    expect(el.querySelector('.more')?.getAttribute('aria-disabled')).toBe('true');
+
+    pending.next([2, 4]);
+    pending.complete();
+    await fixture.whenStable();
+    expect(cards(fixture).length).toBe(2);
+    expect(grid.classList).not.toContain('grid--stale');
+    expect(el.querySelector('.progress')).toBeNull();
+  });
+
   it('ignores an unknown ?tipo=', async () => {
     await TestBed.inject(Router).navigateByUrl('/?tipo=banana');
     const fixture = await render();
