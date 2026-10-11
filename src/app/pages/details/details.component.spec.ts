@@ -108,6 +108,13 @@ describe('DetailsComponent', () => {
     expect(el.querySelector('h1')?.textContent).toBe('darmanitan');
     expect(el.querySelector('.hero__image')?.getAttribute('alt')).toBe('darmanitan');
     expect(TestBed.inject(Title).getTitle()).toBe('Darmanitan | Pokédex');
+    const meta = (selector: string) => document.head.querySelector(`meta[${selector}]`)?.getAttribute('content');
+    expect(meta('property="og:title"')).toBe('Darmanitan | Pokédex');
+    expect(meta('property="og:description"')).toBe(
+      'Darmanitan (#555): Pokémon do tipo Fogo e Voador. Veja estatísticas base, habilidades e evoluções na Pokédex.',
+    );
+    expect(meta('property="og:image"')).toContain('/official-artwork/555.png');
+    expect(meta('property="og:url"')).toBe('https://pokedex.mocah.com.br/details/555');
   });
 
   it('shows the About and Evolution panels', () => {

@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { PokeListComponent } from '../../shared/poke-list/poke-list.component';
+import { SeoService } from '../../service/seo.service';
 
 @Component({
   selector: 'app-home',
@@ -9,4 +10,8 @@ import { PokeListComponent } from '../../shared/poke-list/poke-list.component';
   styleUrls: ['./home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent {}
+export class HomeComponent {
+  constructor() {
+    inject(SeoService).setPage({ title: 'Pokédex', path: '/' });
+  }
+}

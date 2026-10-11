@@ -1,15 +1,15 @@
 import { isPlatformServer, Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, PLATFORM_ID } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, map, of, startWith, switchMap, tap } from 'rxjs';
 
-import { PokeApiService } from '../../service/poke-api.service';
+import { artworkUrl, PokeApiService } from '../../service/poke-api.service';
+import { SeoService } from '../../service/seo.service';
 import { Pokemon, PokemonListItem, PokemonSpecies } from '../../models/pokeapi.model';
 import { DexNumberPipe } from '../../shared/pipes/dex-number.pipe';
 import { SpritePipe } from '../../shared/pipes/sprite.pipe';
-import { TypeNamePipe } from '../../shared/pipes/type-name.pipe';
+import { TYPE_NAMES, TypeNamePipe } from '../../shared/pipes/type-name.pipe';
 import { PokeAboutComponent } from '../../shared/poke-about/poke-about.component';
 import { PokeEvolutionComponent } from '../../shared/poke-evolution/poke-evolution.component';
 import { PokeStatsComponent } from '../../shared/poke-stats/poke-stats.component';
@@ -37,7 +37,7 @@ const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
 export class DetailsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly pokeApiService = inject(PokeApiService);
-  private readonly title = inject(Title);
+  private readonly seo = inject(SeoService);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
@@ -46,9 +46,12 @@ export class DetailsComponent {
     this.route.paramMap.pipe(
       switchMap((params) =>
         this.pokeApiService.getPokemonWithSpecies(params.get('id') ?? '').pipe(
-          tap(([, species]) => this.title.setTitle(`${capitalize(species.name)} | Pokédex`)),
+          tap(([pokemon, species]) => this.describePage(pokemon, species)),
           map(([pokemon, species]): DetailsViewModel => ({ pokemon, species, error: false })),
-          catchError(() => of<DetailsViewModel>({ ...EMPTY_VM, error: true })),
+          catchError(() => {
+            this.seo.setPage({ title: 'Pokémon não encontrado | Pokédex', path: `/details/${params.get('id')}`, noindex: true });
+            return of<DetailsViewModel>({ ...EMPTY_VM, error: true });
+          }),
           startWith(EMPTY_VM),
         ),
       ),
@@ -138,6 +141,18 @@ export class DetailsComponent {
       event.preventDefault();
       this.router.navigate(['/details', id], { replaceUrl: true, state: this.neighbourState });
     }
+  }
+
+  /** Title and link preview of this Pokémon's page: `Pikachu (#025): Pokémon do tipo Elétrico…`. */
+  private describePage(pokemon: Pokemon, species: PokemonSpecies): void {
+    const name = capitalize(species.name);
+    const types = pokemon.types.map(({ type }) => TYPE_NAMES[type.name] ?? type.name).join(' e ');
+    this.seo.setPage({
+      title: `${name} | Pokédex`,
+      description: `${name} (${new DexNumberPipe().transform(pokemon.id)}): Pokémon do tipo ${types}. Veja estatísticas base, habilidades e evoluções na Pokédex.`,
+      path: `/details/${pokemon.id}`,
+      image: artworkUrl(pokemon.id),
+    });
   }
 
   private openedFromList(): boolean {
