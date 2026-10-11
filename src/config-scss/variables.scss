@@ -14,8 +14,14 @@
   --border-glass: rgba(255, 255, 255, 0.14);
   --text: #1f2030;
   --text-muted: #5d6075;
+  // Text, glass and backgrounds of the page itself (themed below); cards and panels keep
+  // --surface/--text, and the detail hero stays dark in both themes.
   --text-on-dark: #f5f6fb;
   --text-on-dark-muted: #a9abc0;
+  --page-bg: var(--primary-color);
+  --page-bg-deep: var(--primary-color-dark);
+  --page-glow: 0.18;
+  --search-bg: rgba(38, 40, 53, 0.88);
 
   // Typography
   --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -35,4 +41,27 @@
   // Layout
   --container: 72rem;
   --gutter: clamp(1rem, 4vw, 2rem);
+}
+
+// Tema claro (ThemeService; aplicado antes da primeira pintura por um script no index.html)
+[data-theme='light'] {
+  --text-on-dark: #1f2030;
+  --text-on-dark-muted: #4d5066;
+  --surface-glass: rgba(31, 32, 48, 0.05);
+  --border-glass: rgba(31, 32, 48, 0.16);
+  --page-bg: #eef0f7;
+  --page-bg-deep: #e3e7f2;
+  --page-glow: 0.1;
+  --search-bg: rgba(255, 255, 255, 0.92);
+  --shadow-sm: 0 1px 3px rgba(15, 16, 30, 0.1);
+  color-scheme: light;
+}
+
+// Áreas que continuam escuras em qualquer tema (hero do detalhe): tokens do tema escuro
+.on-dark {
+  --text-on-dark: #f5f6fb;
+  --text-on-dark-muted: #a9abc0;
+  --surface-glass: rgba(255, 255, 255, 0.08);
+  --border-glass: rgba(255, 255, 255, 0.14);
+  color: var(--text-on-dark);
 }

@@ -33,6 +33,11 @@
   pointer-events: none;
 }
 
+// Só no tema escuro
+[data-theme='light'] .starfield {
+  display: none;
+}
+
 .stars {
   position: absolute;
   top: 0;

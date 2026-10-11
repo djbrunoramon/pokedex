@@ -14,5 +14,10 @@
         <span class="badge">{{ favorites.count() }}</span>
       }
     </a>
+    <button type="button" class="btn btn__ghost btn__small" aria-label="Tema claro"
+            [attr.aria-pressed]="theme.theme() === 'light'" title="Alternar entre tema claro e escuro"
+            (click)="theme.toggle()">
+      <span aria-hidden="true">{{ theme.theme() === 'light' ? '☾' : '☀' }}</span>
+    </button>
   </nav>
 </header>

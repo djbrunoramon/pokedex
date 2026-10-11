@@ -16,7 +16,7 @@
     border: 1px solid var(--border-glass);
     border-radius: var(--radius-pill);
     // Opaque enough to read over the cards scrolling underneath
-    background: rgba(38, 40, 53, 0.88);
+    background: var(--search-bg);
     backdrop-filter: blur(8px);
 
     transition:
@@ -30,6 +30,11 @@
 
     &__icon{
       opacity: 0.8;
+
+      // White artwork: dark on the light theme
+      :host-context([data-theme='light']) & {
+        filter: invert(1);
+      }
     }
 
     &__input{

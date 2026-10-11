@@ -25,4 +25,16 @@ describe('PokeHeaderComponent', () => {
     fixture.detectChanges();
     expect(favorites.querySelector('.badge')?.textContent).toBe('1');
   });
+
+  it('switches the theme with a pressed toggle', () => {
+    const fixture = TestBed.createComponent(PokeHeaderComponent);
+    fixture.detectChanges();
+    const button = fixture.nativeElement.querySelector('button[aria-label="Tema claro"]') as HTMLButtonElement;
+    const before = button.getAttribute('aria-pressed');
+
+    button.click();
+    fixture.detectChanges();
+    expect(button.getAttribute('aria-pressed')).toBe(before === 'true' ? 'false' : 'true');
+    expect(document.documentElement.getAttribute('data-theme')).toBe(before === 'true' ? 'dark' : 'light');
+  });
 });

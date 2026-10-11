@@ -11,8 +11,12 @@
 html{
   font-family: var(--font-family);
   color: var(--text-on-dark);
-  background: var(--primary-color-dark);
+  background: var(--page-bg-deep);
   color-scheme: dark;
+
+  &[data-theme='light'] {
+    color-scheme: light;
+  }
 }
 
 body{
@@ -20,9 +24,9 @@ body{
   isolation: isolate;
   // Brilho radial sutil atrás do conteúdo
   background:
-    radial-gradient(60rem 30rem at 85% -10%, rgba(255, 84, 115, 0.18), transparent 70%),
-    radial-gradient(50rem 30rem at -10% 10%, rgba(99, 144, 240, 0.14), transparent 70%),
-    var(--primary-color);
+    radial-gradient(60rem 30rem at 85% -10%, rgb(255 84 115 / var(--page-glow)), transparent 70%),
+    radial-gradient(50rem 30rem at -10% 10%, rgb(99 144 240 / var(--page-glow)), transparent 70%),
+    var(--page-bg);
   background-attachment: fixed;
 }
 

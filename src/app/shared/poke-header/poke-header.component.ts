@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { FavoritesService } from '../../service/favorites.service';
+import { ThemeService } from '../../service/theme.service';
 
 /** Top bar: the way home and the app's other pages. */
 @Component({
@@ -13,4 +14,5 @@ import { FavoritesService } from '../../service/favorites.service';
 })
 export class PokeHeaderComponent {
   protected readonly favorites = inject(FavoritesService);
+  protected readonly theme = inject(ThemeService);
 }

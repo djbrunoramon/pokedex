@@ -24,7 +24,7 @@
 
   @if (vm().pokemon; as pokemon) {
     <article class="details" [attr.data-type]="primaryType()">
-      <section class="hero fadeIn">
+      <section class="hero on-dark fadeIn">
         <span class="hero__watermark" lang="ja" aria-hidden="true">{{ vm().species?.names?.[0]?.name }}</span>
 
         <p class="hero__number">{{ pokemon.id | dexNumber }}</p>
