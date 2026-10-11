@@ -3,9 +3,10 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { PokemonStat } from '../../models/pokeapi.model';
 
 /** Highest base stat any Pokémon has (Blissey's HP); scales the stat bars. */
-const MAX_BASE_STAT = 255;
+export const MAX_BASE_STAT = 255;
 
-const STAT_LABELS: Record<string, string> = {
+/** Base stats in the games' order, with their Portuguese labels. */
+export const STAT_LABELS: Record<string, string> = {
   hp: 'HP',
   attack: 'Ataque',
   defense: 'Defesa',

@@ -54,6 +54,10 @@
             <div><dt>Peso</dt><dd>{{ m.weight }}</dd></div>
           </dl>
         }
+
+        <a class="btn btn__ghost btn__small hero__compare" routerLink="/comparar" [queryParams]="{ ids: pokemon.id }">
+          <span aria-hidden="true">⇄</span> Comparar
+        </a>
       </section>
 
       <section class="panel fadeInUp" aria-labelledby="stats-title">

@@ -1,0 +1,14 @@
+<svg [attr.viewBox]="viewBox" aria-hidden="true" focusable="false">
+  @for (ring of rings; track $index) {
+    <polygon class="ring" [attr.points]="ring" />
+  }
+  @for (axis of axes; track axis.label) {
+    <line class="axis" [attr.x1]="center" [attr.y1]="center" [attr.x2]="axis.x" [attr.y2]="axis.y" />
+    <text class="label" [attr.x]="axis.lx" [attr.y]="axis.ly" [attr.text-anchor]="axis.anchor" dominant-baseline="middle">
+      {{ axis.label }}
+    </text>
+  }
+  @for (shape of shapes(); track shape.name) {
+    <polygon class="shape" [attr.points]="shape.points" [style.--color]="shape.color" />
+  }
+</svg>

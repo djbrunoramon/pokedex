@@ -1,0 +1,84 @@
+<main>
+  <h1 class="title">Comparar Pokémon</h1>
+  <p class="intro">Escolha até {{ max }} Pokémon para ver as estatísticas base lado a lado.</p>
+
+  @if (ids().length < max) {
+    <form class="add" (submit)="add($event, field)">
+      <label class="visually-hidden" for="compare-add">Adicionar Pokémon por nome ou número</label>
+      <input #field id="compare-add" class="add__field" list="compare-names" autocomplete="off"
+             placeholder="Nome ou número (ex.: pikachu, 25)">
+      <datalist id="compare-names">
+        @for (entry of index() ?? []; track entry.name) {
+          <option [value]="entry.name"></option>
+        }
+      </datalist>
+      <button type="submit" class="btn btn__secondary btn__small">Adicionar</button>
+    </form>
+  }
+  <p class="message" role="status">{{ message() }}</p>
+
+  @if (error()) {
+    <section class="state" role="alert">
+      <img src="assets/error.png" alt="" width="593" height="247">
+      <p>Não foi possível carregar os Pokémon. Verifique sua conexão e tente novamente.</p>
+    </section>
+  } @else if (columns(); as columns) {
+    @if (columns.length) {
+      <ul class="slots">
+        @for (column of columns; track column.id) {
+          <li class="slot" [style.--color]="column.color">
+            <img [src]="column.image" alt="" width="96" height="96">
+            <div>
+              <span class="slot__number">{{ column.id | dexNumber }}</span>
+              <a class="slot__name" [routerLink]="['/details', column.id]">{{ column.name }}</a>
+              <span class="slot__types">
+                @for (type of column.types; track type) {
+                  <span class="type-chip" [attr.data-type]="type">{{ type | typeName }}</span>
+                }
+              </span>
+            </div>
+            <button type="button" class="slot__remove" [attr.aria-label]="'Remover ' + column.name + ' da comparação'"
+                    (click)="remove(column.id, column.name)">×</button>
+          </li>
+        }
+      </ul>
+
+      <section class="panel" aria-labelledby="compare-stats">
+        <h2 id="compare-stats">Estatísticas base</h2>
+        <div class="panel__body">
+          <poke-radar [series]="columns"></poke-radar>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Estatística</th>
+                @for (column of columns; track column.id) {
+                  <th scope="col" [style.--color]="column.color">{{ column.name }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of rows(); track row.label) {
+                <tr>
+                  <th scope="row">{{ row.label }}</th>
+                  @for (value of row.values; track $index) {
+                    <td [class.best]="columns.length > 1 && value === row.best">{{ value }}</td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    } @else {
+      <section class="state">
+        <img src="assets/pokemon.png" alt="" width="80" height="80">
+        <p>Nenhum Pokémon escolhido. Adicione pelo campo acima ou pelo botão “Comparar” na página de um Pokémon.</p>
+      </section>
+    }
+  } @else {
+    <div role="status">
+      <span class="visually-hidden">Carregando Pokémon…</span>
+      <div class="skeleton slots__placeholder" aria-hidden="true"></div>
+    </div>
+  }
+</main>

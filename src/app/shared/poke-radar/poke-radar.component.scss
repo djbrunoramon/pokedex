@@ -1,0 +1,28 @@
+:host {
+  display: block;
+
+  svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .ring,
+  .axis {
+    fill: none;
+    stroke: var(--surface-muted);
+    stroke-width: 1;
+  }
+
+  .label {
+    font-size: 12px;
+    fill: var(--text-muted);
+  }
+
+  .shape {
+    fill: color-mix(in srgb, var(--color) 25%, transparent);
+    stroke: var(--color);
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+  }
+}
