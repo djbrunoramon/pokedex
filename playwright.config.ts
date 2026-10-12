@@ -21,7 +21,11 @@ export default defineConfig({
     locale: 'pt-BR',
     trace: 'retain-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    // Safari's engine for the sound, whose playback differs per browser (iOS: no Ogg Vorbis).
+    { name: 'webkit', use: { ...devices['iPhone 15'] }, testMatch: '**/sound.e2e.ts' },
+  ],
   webServer: process.env['E2E_BASE_URL']
     ? undefined
     : { command: 'npm start', url: baseURL, reuseExistingServer: true, timeout: 120_000 },

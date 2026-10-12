@@ -1,4 +1,4 @@
-@if (supported() && url()) {
+@if (url()) {
   <button type="button" class="btn btn__ghost btn__small" [attr.aria-label]="'Ouvir o som de ' + name()"
           [attr.aria-busy]="playing()" (click)="play()">
     <span aria-hidden="true">{{ volume.muted() ? '🔇' : playing() ? '♪' : '🔊' }}</span> Ouvir

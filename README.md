@@ -23,7 +23,7 @@
 - **Sort** — by number, name, stat total (highest first) or type, combined with the search and the filter.
 - **Shareable state** — the search, the type and the order live in the URL (`?q=char&tipo=fire&ordem=total`), so they survive a refresh or a shared link.
 - **Coming back where you left off** — *Voltar* returns to the list with the same cards loaded and the same scroll position.
-- **Details page** — Pokédex number, types, height and weight, base stats with proportional bars and their total, category, Pokédex description and abilities (hidden one marked), and a clickable evolution chain (branches such as Eevee's side by side). Previous/next buttons, also on the <kbd>←</kbd> <kbd>→</kbd> keys, browse the Pokédex. Play the Pokémon's cry, or share its page (system share sheet, or the link is copied).
+- **Details page** — Pokédex number, types, height and weight, base stats with proportional bars and their total, category, Pokédex description and abilities (hidden one marked), and a clickable evolution chain (branches such as Eevee's side by side). Previous/next buttons, also on the <kbd>←</kbd> <kbd>→</kbd> keys, browse the Pokédex. Play the Pokémon's cry — at a volume you set, low by default, on every browser including iPhone's (the PokéAPI's Ogg Vorbis files, which Safari can't play, are decoded in WebAssembly) — or share its page (system share sheet, or the link is copied).
 - **Favourites** — a heart on every card and detail page; *Meus favoritos* lists them (kept in the browser, synced across tabs).
 - **Compare** — up to three Pokémon side by side, their base stats overlaid on a radar chart and in a table (`/comparar?ids=1,4,7`).
 - **Light and dark themes** — following the system until you pick one in the header.
@@ -75,7 +75,7 @@ Then open `http://localhost:4200/`. The app reloads automatically when you chang
 src/
 ├── app/
 │   ├── models/          # Typed PokéAPI responses
-│   ├── service/         # PokeApiService (the only API layer), favourites, theme, SEO tags
+│   ├── service/         # PokeApiService (the only API layer), favourites, theme, volume, cry playback, SEO tags
 │   ├── pages/
 │   │   ├── home/        # Hero + Pokémon list
 │   │   ├── details/     # Pokémon details, previous/next
@@ -116,7 +116,7 @@ docs/                    # Built site served by GitHub Pages
 npm test
 ```
 
-Specs live next to their subject (`*.spec.ts`) and cover the API service (caching, cancellation, prerender state transfer), the list (paging, search, type filter, sorting, look-alike names, URL sync, restoring the loaded cards, loading states), cards, the details page and its panels, favourites, comparison, theme, SEO tags, shortcuts, the search box, the infinite-scroll directive and the pipes. To run a single file or test:
+Specs live next to their subject (`*.spec.ts`) and cover the API service (caching, cancellation, prerender state transfer), the list (paging, search, type filter, sorting, look-alike names, URL sync, restoring the loaded cards, loading states), cards, the details page and its panels, favourites, comparison, theme, SEO tags, the volume and the cry's playback paths (native, Web Audio, the WASM decoder), shortcuts, the search box, the infinite-scroll directive and the pipes. To run a single file or test:
 
 ```bash
 npx ng test --include='**/poke-list.component.spec.ts'
@@ -126,11 +126,11 @@ npx ng test --filter='searches the whole index'
 ### End-to-end tests
 
 ```bash
-npx playwright install chromium   # once
+npx playwright install chromium webkit   # once
 npm run test:e2e
 ```
 
-The suite in `e2e/` drives Chromium through search, the type filter, sorting, the details page, coming back to the list, favourites and comparison, and runs an accessibility audit (axe, WCAG 2.2 AA, both themes) with keyboard checks. It uses the dev server (a running `npm start` is reused, otherwise one is started) and the real PokéAPI, so it needs internet access. Some checks need a production build and are skipped on the dev server: `robots.txt`/`sitemap.xml`, the link-preview tags in the prerendered HTML, and the PWA (manifest, offline). Run them against a build, served locally or deployed:
+The suite in `e2e/` drives Chromium through search, the type filter, sorting, the details page, coming back to the list, favourites, comparison and the cry's volume, and runs an accessibility audit (axe, WCAG 2.2 AA, both themes) with keyboard checks. The sound tests also run on WebKit (Safari's engine, with an iPhone viewport), including a simulated iPhone where only the WebAssembly decoder can read Ogg Vorbis. It uses the dev server (a running `npm start` is reused, otherwise one is started) and the real PokéAPI, so it needs internet access. Some checks need a production build and are skipped on the dev server: `robots.txt`/`sitemap.xml`, the link-preview tags in the prerendered HTML, and the PWA (manifest, offline). Run them against a build, served locally or deployed:
 
 ```bash
 npm run build

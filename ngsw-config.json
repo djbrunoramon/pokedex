@@ -41,7 +41,19 @@
       }
     },
     {
-      "name": "artwork-and-cries",
+      "name": "cries",
+      "urls": [
+        "https://raw.githubusercontent.com/PokeAPI/cries/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 300,
+        "maxAge": "30d",
+        "cacheOpaqueResponses": false
+      }
+    },
+    {
+      "name": "artwork",
       "urls": [
         "https://raw.githubusercontent.com/PokeAPI/**"
       ],
