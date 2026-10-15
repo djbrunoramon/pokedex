@@ -35,6 +35,22 @@
     }
   }
 
+  // On phones, put the nav on its own full-width row so the four controls
+  // stay on one line instead of leaving the theme button orphaned.
+  @media (max-width: 480px) {
+    .nav {
+      width: 100%;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      gap: rem-calc(4);
+
+      .btn {
+        padding-inline: rem-calc(8);
+        white-space: nowrap;
+      }
+    }
+  }
+
   .active {
     border-color: var(--accent-text);
   }
